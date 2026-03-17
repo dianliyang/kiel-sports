@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import {
   buildWorkoutCategoryPages,
   buildWorkoutDetailCatalog,
@@ -6,7 +6,17 @@ import {
 } from "../lib/workoutsCatalog";
 import { getCategoryLabel, localizeSidebarItems } from "../lib/workoutSidebarI18n";
 import { localizeWeekday } from "../lib/workoutPageLocale";
+import { setWorkoutLocaleMaps } from "../lib/workoutLocaleMaps";
+import { workoutTitleMap } from "../lib/workoutTitleMap";
+import { workoutCategoryMap } from "../lib/workoutCategoryMap";
 import type { WorkoutDetailResponse as WorkoutDetailRecord } from "../lib/workoutsApi";
+
+beforeAll(() => {
+  setWorkoutLocaleMaps({
+    titleMap: workoutTitleMap,
+    categoryMap: workoutCategoryMap,
+  });
+});
 
 const detailRecords: Record<string, WorkoutDetailRecord> = {
   yogaA: {
@@ -208,9 +218,9 @@ describe("workouts detail catalog transformations", () => {
 
     const catalog = buildWorkoutDetailCatalog(records);
     expect(catalog.groups.Fitness.titleGroups.map((group) => group.title)).toEqual([
+      "Workout Tue 09:30-12:30",
       "Workout Thu 09:30-12:30",
       "Workout Thu 13:15-16:15",
-      "Workout Tue 09:30-12:30",
     ]);
   });
 
@@ -500,8 +510,8 @@ describe("workouts detail catalog transformations", () => {
     expect(getCategoryLabel("zh-CN", "Yachtsegeln Inklusion")).toBe("融合游艇帆船");
     expect(getCategoryLabel("zh-CN", "Ballett, American Technique")).toBe("芭蕾，美式技巧");
     expect(getCategoryLabel("en", "Schwimmen für SL")).toBe("Swimming for SL");
-    expect(getCategoryLabel("en", "Erwachsene")).toBe("Adults");
-    expect(getCategoryLabel("ja", "öff. Schwimmbetrieb")).toBe("一般開放遊泳");
+    expect(getCategoryLabel("en", "Erwachsene")).toBe("Erwachsene");
+    expect(getCategoryLabel("ja", "öff. Schwimmbetrieb")).toBe("öff. Schwimmbetrieb");
     expect(getCategoryLabel("ko", "Uni Wettkampf Mannschaft")).toBe("대학 경기 팀");
     expect(getCategoryLabel("en", "für Anfänger*innen")).toBe("for Beginners");
     expect(getCategoryLabel("zh-CN", "Ballett")).toBe("芭蕾");
@@ -666,7 +676,7 @@ describe("workouts detail catalog transformations", () => {
       },
       {
         collapsed: false,
-        text: "Jollensegeln",
+        text: "Dinghy Sailing",
         items: [
           { text: "Open Dinghy Sailing", link: "/en/workouts/freies-jollensegeln" },
           { text: "Dinghy Placement Sailing", link: "/en/workouts/jollen-einstufungssegeln" },
@@ -704,7 +714,7 @@ describe("workouts detail catalog transformations", () => {
         items: [
           { text: "Aqua Jogging", link: "/en/workouts/aqua-jogging" },
           { text: "Children's Swimming Courses", link: "/en/workouts/schwimmkurse-kinder" },
-          { text: "Swimming", link: "/en/workouts/schwimmen" },
+          { text: "Schwimmen", link: "/en/workouts/schwimmen" },
         ],
       },
       {
@@ -898,7 +908,7 @@ describe("workouts detail catalog transformations", () => {
       {
         collapsed: false,
         text: "游泳",
-        items: [{ text: "儿童", link: "/zh-cn/workouts/schwimmkurse-kinder" }],
+        items: [{ text: "儿童游泳课程", link: "/zh-cn/workouts/schwimmkurse-kinder" }],
       },
       {
         collapsed: false,

@@ -1,5 +1,4 @@
-import { workoutTitleMap } from "./workoutTitleMap";
-import { workoutCategoryMap } from "./workoutCategoryMap";
+import { getWorkoutCategoryMap, getWorkoutTitleMap } from "./workoutLocaleMaps";
 import {
   getLocalizedLabel,
   getLocalizedValue,
@@ -13,7 +12,7 @@ export function getAllCategoryLabelMappings(): Record<
   string,
   Partial<Record<SidebarLocale, string>>
 > {
-  return { ...workoutCategoryMap };
+  return { ...getWorkoutCategoryMap() };
 }
 
 function escapeRegex(value: string): string {
@@ -24,7 +23,7 @@ export function getCategoryLabel(
   locale: SidebarLocale,
   category: string,
 ): string {
-  return getLocalizedLabel(workoutCategoryMap, locale, category);
+  return getLocalizedLabel(getWorkoutCategoryMap(), locale, category);
 }
 
 const sidebarGroupLabelMap: Record<
@@ -146,6 +145,7 @@ export function localizeKnownCategoryFragments(
   locale: SidebarLocale,
   value: string,
 ): string {
+  const workoutCategoryMap = getWorkoutCategoryMap();
   const activeKeys = Object.keys(workoutCategoryMap)
     .filter((key) => {
       const localized = workoutCategoryMap[key]?.[locale];
@@ -669,6 +669,8 @@ export function localizeWorkoutTitle(
   const normalizedValue = normalizeTranslationKey(value);
 
   // 0. Direct title/category map
+  const workoutTitleMap = getWorkoutTitleMap();
+  const workoutCategoryMap = getWorkoutCategoryMap();
   const directMatch =
     getLocalizedValue(workoutTitleMap, locale, normalizedValue) ??
     getLocalizedValue(workoutCategoryMap, locale, normalizedValue);

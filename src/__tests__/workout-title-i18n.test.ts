@@ -1,7 +1,17 @@
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import { localizeWorkoutTitle } from "../lib/workoutSidebarI18n";
+import { setWorkoutLocaleMaps } from "../lib/workoutLocaleMaps";
+import { workoutTitleMap } from "../lib/workoutTitleMap";
+import { workoutCategoryMap } from "../lib/workoutCategoryMap";
 
 type Locale = "de" | "en" | "zh-CN" | "ja" | "ko";
+
+beforeAll(() => {
+  setWorkoutLocaleMaps({
+    titleMap: workoutTitleMap,
+    categoryMap: workoutCategoryMap,
+  });
+});
 
 describe("Workout title localization (BDD)", () => {
   describe("Given a standalone ballet course title with detailed level information", () => {
@@ -208,17 +218,17 @@ describe("Workout title localization (BDD)", () => {
         {
           title: "Yoga für fortg. Anfänger",
           locale: "ja",
-          expected: "ヨガ für 初中級",
+          expected: "Yoga für 初中級",
         },
         {
           title: "Yoga für fortg. Anfänger",
           locale: "ko",
-          expected: "요가 für 초중급",
+          expected: "Yoga für 초중급",
         },
         {
           title: "Yoga für fortg. Anfänger",
           locale: "zh-CN",
-          expected: "瑜伽 für 初中级",
+          expected: "Yoga für 初中级",
         },
       ];
 

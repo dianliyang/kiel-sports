@@ -48,7 +48,11 @@ export type WorkoutDetailResponse = {
 
 export type SnapshotManifest = {
   detailKey: string;
+  titleLocaleKey: string;
+  categoryLocaleKey: string;
 };
+
+import { loadWorkoutLocaleMaps } from "./workoutLocaleMaps";
 
 export type ApiFetch = typeof fetch;
 
@@ -78,7 +82,15 @@ export async function loadWorkoutDetailCatalogFromSnapshot(
     await fetchImpl(buildWorkoutsManifestUrl(baseUrl)),
   );
 
-  return readJson<Record<string, WorkoutDetailResponse>>(
-    await fetchImpl(buildSnapshotAssetUrl(baseUrl, manifest.detailKey)),
-  );
+  const [detailCatalog] = await Promise.all([
+    readJson<Record<string, WorkoutDetailResponse>>(
+      await fetchImpl(buildSnapshotAssetUrl(baseUrl, manifest.detailKey)),
+    ),
+    loadWorkoutLocaleMaps(baseUrl, {
+      titleLocaleKey: manifest.titleLocaleKey,
+      categoryLocaleKey: manifest.categoryLocaleKey,
+    }, fetchImpl),
+  ]);
+
+  return detailCatalog;
 }
