@@ -68,6 +68,9 @@ describe("workout page renderer", () => {
     expect(markdown).toContain("https://ja.wikipedia.org/wiki/%E3%83%93%E3%83%BC%E3%83%81%E3%83%90%E3%83%AC%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%AB");
     expect(markdown).toContain('alt="Wikipedia"');
     expect(markdown).toContain('snapshotUpdatedAt: "2026-03-17T10:00:00Z"');
+    expect(markdown).toContain('description: "');
+    expect(markdown).toContain('seoPageKind: "workout-category"');
+    expect(markdown).toContain("seoVariantCount: 0");
   });
 
   test("keeps snapshotUpdatedAt in frontmatter for footer last-updated rendering", () => {
@@ -76,6 +79,8 @@ describe("workout page renderer", () => {
     expect(markdown).toContain('class="workout-page-heading"');
     expect(markdown).toContain('snapshotUpdatedAt: "2026-03-17T10:00:00Z"');
     expect(markdown).not.toContain('class="snapshot-last-modified"');
+    expect(markdown).toContain('description: "');
+    expect(markdown).toContain('seoPageKind: "workout-category"');
   });
 
   test("falls back to the English wikipedia mapping when a locale-specific URL is missing", () => {

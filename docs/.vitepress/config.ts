@@ -1,5 +1,6 @@
 import { defineConfig } from "vitepress";
 import { ensureWorkoutPages, repoRoot } from "./workouts/workoutPageBuilder";
+import { buildSeoHead } from "./seo";
 import { normalizeSnapshotDatetime } from "./theme/snapshotLastModified";
 
 const sidebar = await ensureWorkoutPages();
@@ -47,10 +48,7 @@ export default defineConfig({
   ],
 
   transformHead({ pageData }) {
-    const canonicalUrl = `https://sport.oili.dev/${pageData.relativePath}`
-      .replace(/index\.md$/, "")
-      .replace(/\.md$/, "");
-    return [["link", { rel: "canonical", href: canonicalUrl }]];
+    return buildSeoHead(pageData);
   },
 
   transformPageData(pageData) {

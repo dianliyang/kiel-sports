@@ -16,6 +16,10 @@ import {
   localizeWeekday,
 } from "../../../src/lib/workoutPageLocale";
 import { getCategoryWikipediaLinks } from "../../../src/lib/workoutCategoryWikipediaMap";
+import {
+  buildWorkoutIndexDescription,
+  buildWorkoutPageDescription,
+} from "../seo";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
@@ -619,6 +623,9 @@ export function renderCategoryPage(
   const lines = [
     "---",
     `title: ${JSON.stringify(pageTitle)}`,
+    `description: ${JSON.stringify(buildWorkoutPageDescription(locale, pageTitle, variantCount))}`,
+    'seoPageKind: "workout-category"',
+    `seoVariantCount: ${variantCount}`,
     "layout: doc",
     ...(snapshotUpdatedAt
       ? [`snapshotUpdatedAt: ${JSON.stringify(snapshotUpdatedAt)}`]
@@ -774,9 +781,12 @@ export function renderIndexPage(
     },
   };
   const content = contentByLocale[locale];
+  const seoLocale = locale === "zh-CN" ? "zh-cn" : locale;
   const lines = [
     "---",
     `title: ${JSON.stringify(content.title)}`,
+    `description: ${JSON.stringify(buildWorkoutIndexDescription(seoLocale))}`,
+    'seoPageKind: "workout-index"',
     "layout: doc",
     ...(snapshotUpdatedAt
       ? [`snapshotUpdatedAt: ${JSON.stringify(snapshotUpdatedAt)}`]
