@@ -8,25 +8,58 @@ const localizedLastUpdated = (text: string) => ({
     dateStyle: "short",
     timeStyle: "short",
     forceLocale: true,
-  },
+  } as const,
 });
 
 export default defineConfig({
   title: "Sports in Kiel",
   lang: "en-US",
-  description:
-    "Static workouts catalog rendered from published workout snapshots.",
+  description: "Information aggregator for sports activities in Kiel, Germany.",
   lastUpdated: true,
+  cleanUrls: true,
+  sitemap: {
+    hostname: "https://sport.oili.dev",
+  },
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/sportkiel-mark.svg" }],
+    [
+      "link",
+      { rel: "icon", type: "image/svg+xml", href: "/sportkiel-mark.svg" },
+    ],
     ["link", { rel: "shortcut icon", href: "/sportkiel-mark.svg" }],
+    ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:site_name", content: "Sports in Kiel" }],
+    [
+      "meta",
+      {
+        property: "og:image",
+        content: "https://sport.oili.dev/sportkiel-mark.svg",
+      },
+    ],
+    ["meta", { name: "twitter:card", content: "summary" }],
+    [
+      "meta",
+      {
+        name: "twitter:image",
+        content: "https://sport.oili.dev/sportkiel-mark.svg",
+      },
+    ],
   ],
+
+  transformHead({ pageData }) {
+    const canonicalUrl = `https://sport.oili.dev/${pageData.relativePath}`
+      .replace(/index\.md$/, "")
+      .replace(/\.md$/, "");
+    return [["link", { rel: "canonical", href: canonicalUrl }]];
+  },
 
   locales: {
     de: {
       label: "Deutsch",
       lang: "de-DE",
       link: "/de/",
+      title: "Sport in Kiel",
+      description:
+        "Informations-Aggregator für Sportangebote in Kiel, Deutschland.",
       themeConfig: {
         siteTitle: false,
         search: { provider: "local" },
@@ -34,7 +67,10 @@ export default defineConfig({
         lastUpdated: localizedLastUpdated("Zuletzt aktualisiert"),
         outline: { label: "Auf dieser Seite" },
         socialLinks: [
-          { icon: "github", link: "https://github.com/dianliyang/athena-workouts-public" },
+          {
+            icon: "github",
+            link: "https://github.com/dianliyang/athena-workouts-public",
+          },
         ],
         nav: [
           { text: "Workout", link: "/de/workouts" },
@@ -48,6 +84,9 @@ export default defineConfig({
       label: "English",
       lang: "en-US",
       link: "/en/",
+      title: "Sports in Kiel",
+      description:
+        "Information aggregator for sports activities in Kiel, Germany.",
       themeConfig: {
         siteTitle: false,
         search: { provider: "local" },
@@ -55,7 +94,10 @@ export default defineConfig({
         lastUpdated: localizedLastUpdated("Last updated"),
         outline: { label: "On this page" },
         socialLinks: [
-          { icon: "github", link: "https://github.com/dianliyang/athena-workouts-public" },
+          {
+            icon: "github",
+            link: "https://github.com/dianliyang/athena-workouts-public",
+          },
         ],
         nav: [
           { text: "Workout", link: "/en/workouts" },
@@ -69,6 +111,8 @@ export default defineConfig({
       label: "日本語",
       lang: "ja-JP",
       link: "/ja/",
+      title: "Sports in Kiel",
+      description: "ドイツ・キール市で提供されているスポーツ情報の集約サイト。",
       themeConfig: {
         siteTitle: false,
         search: { provider: "local" },
@@ -76,7 +120,10 @@ export default defineConfig({
         lastUpdated: localizedLastUpdated("最終更新"),
         outline: { label: "このページ" },
         socialLinks: [
-          { icon: "github", link: "https://github.com/dianliyang/athena-workouts-public" },
+          {
+            icon: "github",
+            link: "https://github.com/dianliyang/athena-workouts-public",
+          },
         ],
         nav: [
           { text: "ワークアウト", link: "/ja/workouts" },
@@ -90,6 +137,8 @@ export default defineConfig({
       label: "한국어",
       lang: "ko-KR",
       link: "/ko/",
+      title: "Sports in Kiel",
+      description: "독일 킬에서 제공되는 스포츠 정보 애그리게이터입니다.",
       themeConfig: {
         siteTitle: false,
         search: { provider: "local" },
@@ -97,7 +146,10 @@ export default defineConfig({
         lastUpdated: localizedLastUpdated("마지막 업데이트"),
         outline: { label: "이 페이지" },
         socialLinks: [
-          { icon: "github", link: "https://github.com/dianliyang/athena-workouts-public" },
+          {
+            icon: "github",
+            link: "https://github.com/dianliyang/athena-workouts-public",
+          },
         ],
         nav: [
           { text: "운동", link: "/ko/workouts" },
@@ -111,6 +163,8 @@ export default defineConfig({
       label: "简体中文",
       lang: "zh-CN",
       link: "/zh-cn/",
+      title: "Sports in Kiel",
+      description: "德国基尔市体育信息聚合平台。",
       themeConfig: {
         siteTitle: false,
         search: { provider: "local" },
@@ -118,7 +172,10 @@ export default defineConfig({
         lastUpdated: localizedLastUpdated("最后更新"),
         outline: { label: "本页内容" },
         socialLinks: [
-          { icon: "github", link: "https://github.com/dianliyang/athena-workouts-public" },
+          {
+            icon: "github",
+            link: "https://github.com/dianliyang/athena-workouts-public",
+          },
         ],
         nav: [
           { text: "运动", link: "/zh-cn/workouts" },
@@ -138,7 +195,10 @@ export default defineConfig({
     lastUpdated: localizedLastUpdated("Last updated"),
     outline: { label: "On this page" },
     socialLinks: [
-      { icon: "github", link: "https://github.com/dianliyang/athena-workouts-public" },
+      {
+        icon: "github",
+        link: "https://github.com/dianliyang/athena-workouts-public",
+      },
     ],
     nav: [
       { text: "Workout", link: "/en/workouts" },

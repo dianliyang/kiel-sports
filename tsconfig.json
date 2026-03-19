@@ -8,5 +8,7 @@
     "paths": {
       "@/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts", "docs/**/*.ts", "docs/**/*.vue", "docs/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }

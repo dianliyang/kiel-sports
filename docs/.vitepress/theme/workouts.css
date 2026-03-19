@@ -42,7 +42,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
-  color: #0f172a;
+  color: var(--vp-c-text-1);
 }
 
 .sportkiel-logo svg {
@@ -64,7 +64,7 @@
 
 .sportkiel-logo-wave {
   fill: none;
-  stroke: #3b82f6;
+  stroke: var(--vp-c-brand-1);
   stroke-width: 16;
   stroke-linecap: round;
 }
@@ -184,6 +184,10 @@
     0 1px 1px rgba(0, 0, 0, 0.22);
 }
 
+
+.dark .VPHomeHero :deep(.image-src) {
+  content: url(/sportkiel-mark-dark.svg);
+}
 
 .VPHomeHero .image-container {
   overflow: visible;
@@ -471,15 +475,6 @@ a.workout-row:focus-visible {
 
 .dark .workout-group-provider {
   color: var(--vp-c-text-2);
-}
-
-.dark .sportkiel-logo {
-  color: #f8fafc;
-}
-
-.dark .sportkiel-logo-wave,
-.dark .sportkiel-logo-wave {
-  stroke: #60a5fa;
 }
 
 .dark .workout-page-wikipedia {

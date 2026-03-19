@@ -1,0 +1,8 @@
+<svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" class="w-48 h-48 mx-auto">
+    <g transform="translate(30, 15)">
+        <!-- Hollow Sail / Play Button (Stroke Only) -->
+        <path d="M 25 15 L 25 70 L 75 42.5 Z" fill="none" stroke="#f8fafc" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"></path>
+        <!-- Fluid Wave (Brand 1) -->
+        <path d="M 0 100 Q 45 125, 90 100" fill="none" stroke="#78a7f6" stroke-width="16" stroke-linecap="round"></path>
+    </g>
+</svg>
