@@ -3,6 +3,7 @@ import {
   renderCategoryPage,
   renderRow,
 } from "../../docs/.vitepress/workouts/workoutPageRenderer";
+import { setWorkoutCategoryWikipediaMap } from "../lib/workoutCategoryWikipediaMap";
 import type { WorkoutDetailItem } from "../lib/workoutsCatalog";
 import { setWorkoutLocaleMaps } from "../lib/workoutLocaleMaps";
 import {
@@ -14,6 +15,27 @@ beforeAll(() => {
   setWorkoutLocaleMaps({
     titleMap: workoutTitleFixtureMap,
     categoryMap: workoutCategoryFixtureMap,
+  });
+  setWorkoutCategoryWikipediaMap({
+    Beachvolleyball: {
+      en: "https://en.wikipedia.org/wiki/Beach_volleyball",
+      ja: "https://ja.wikipedia.org/wiki/%E3%83%93%E3%83%BC%E3%83%81%E3%83%90%E3%83%AC%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%AB",
+    },
+    "Bachata / Kizomba": {
+      en: [
+        {
+          label: "Bachata",
+          url: "https://en.wikipedia.org/wiki/Bachata_(dance)",
+        },
+        {
+          label: "Kizomba",
+          url: "https://en.wikipedia.org/wiki/Kizomba",
+        },
+      ],
+    },
+    Bouldering: {
+      en: "https://en.wikipedia.org/wiki/Bouldering",
+    },
   });
 });
 
@@ -48,11 +70,30 @@ describe("workout page renderer", () => {
     expect(markdown).toContain('snapshotUpdatedAt: "2026-03-17T10:00:00Z"');
   });
 
+  test("keeps snapshotUpdatedAt in frontmatter for footer last-updated rendering", () => {
+    const markdown = renderCategoryPage("de", "Tischtennis", [], "2026-03-17T10:00:00Z");
+
+    expect(markdown).toContain('class="workout-page-heading"');
+    expect(markdown).toContain('snapshotUpdatedAt: "2026-03-17T10:00:00Z"');
+    expect(markdown).not.toContain('class="snapshot-last-modified"');
+  });
+
   test("falls back to the English wikipedia mapping when a locale-specific URL is missing", () => {
     const markdown = renderCategoryPage("zh-CN", "Bouldering", []);
 
+    expect(markdown).toContain('class="workout-page-actions"');
     expect(markdown).toContain('class="workout-page-wikipedia"');
     expect(markdown).toContain("https://en.wikipedia.org/wiki/Bouldering");
+  });
+
+  test("renders multiple wikipedia links side by side for composite categories", () => {
+    const markdown = renderCategoryPage("en", "Bachata / Kizomba", []);
+
+    expect(markdown.match(/class="workout-page-wikipedia"/g)?.length).toBe(2);
+    expect(markdown).toContain("https://en.wikipedia.org/wiki/Bachata_(dance)");
+    expect(markdown).toContain("https://en.wikipedia.org/wiki/Kizomba");
+    expect(markdown).toContain("Wikipedia: Bachata");
+    expect(markdown).toContain("Wikipedia: Kizomba");
   });
 
   test("hides the wikipedia link when the category has no mapping", () => {
@@ -116,12 +157,36 @@ describe("workout page renderer", () => {
       },
     ]);
 
-    expect(markdown).toContain("::: info general");
+    expect(markdown).toContain("::: info General Note");
     expect(markdown).toContain("No previous experience necessary");
     expect(markdown).toContain("Please arrive 10 minutes early.");
-    expect(markdown).toContain("::: tip price");
+    expect(markdown).toContain("::: tip Price Note");
     expect(markdown).toContain("All prices are in euros and include VAT.");
     expect(markdown).toContain("Students receive a discount.");
+  });
+
+  test("localizes detail container titles for non-English pages", () => {
+    const markdown = renderCategoryPage("de", "Yoga", [
+      {
+        title: "Yoga Flow",
+        items: [
+          {
+            ...baseItem,
+            category: "Yoga",
+            title: "Yoga Flow",
+            description: {
+              general: "Bitte Matte mitbringen.",
+              price: "Barzahlung ist nicht möglich.",
+            },
+          },
+        ],
+      },
+    ]);
+
+    expect(markdown).toContain("::: info Allgemeine Hinweise");
+    expect(markdown).toContain("::: tip Preishinweise");
+    expect(markdown).not.toContain("::: info general");
+    expect(markdown).not.toContain("::: tip price");
   });
 
   test("falls back to the legacy description as the general details container", () => {
@@ -142,9 +207,9 @@ describe("workout page renderer", () => {
       },
     ]);
 
-    expect(markdown).toContain("::: info general");
+    expect(markdown).toContain("::: info General Note");
     expect(markdown).toContain("Please bring your own mat.");
-    expect(markdown).not.toContain("::: tip price");
+    expect(markdown).not.toContain("::: tip Price Note");
   });
 
   test("converts escaped newline sequences into markdown newlines inside detail containers", () => {
@@ -190,7 +255,7 @@ describe("workout page renderer", () => {
     expect(markdown).toContain(
       "- No previous experience necessary\n- We don't accept cash - card payment only!\n- If you come to us regularly, please sign up for a profile to speed up the entry process.",
     );
-    expect(markdown).toContain("::: tip price\n- Line one\n- Line two\n:::");
+    expect(markdown).toContain("::: tip Price Note\n- Line one\n- Line two\n:::");
   });
 
   test("keeps existing markdown list lines in general description", () => {
@@ -210,7 +275,7 @@ describe("workout page renderer", () => {
       },
     ]);
 
-    expect(markdown).toContain("::: info general\n- a\n- b\n:::");
+    expect(markdown).toContain("::: info General Note\n- a\n- b\n:::");
   });
 
   test("keeps existing markdown list lines in price description", () => {
@@ -230,7 +295,7 @@ describe("workout page renderer", () => {
       },
     ]);
 
-    expect(markdown).toContain("::: tip price\n- a\n- b\n:::");
+    expect(markdown).toContain("::: tip Price Note\n- a\n- b\n:::");
   });
 
   test("renders nested price fields from the price object", () => {

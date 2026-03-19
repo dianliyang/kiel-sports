@@ -68,7 +68,7 @@ function normalizeText(value: string | null | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-function normalizeDetails(
+function normalizeDescriptionFields(
   description: WorkoutDetailRecord["description"],
 ): WorkoutDetailRecord["description"] | undefined {
   const general = normalizeText(description?.general);
@@ -147,7 +147,7 @@ function normalizePrice(
   return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
-function normalizeDetail(record: WorkoutDetailRecord): WorkoutDetailItem {
+function normalizeWorkoutDetailItem(record: WorkoutDetailRecord): WorkoutDetailItem {
   const {
     bookingUrl: _legacyBookingUrl,
     location,
@@ -166,7 +166,7 @@ function normalizeDetail(record: WorkoutDetailRecord): WorkoutDetailItem {
   return {
     ...rest,
     category: normalizeCategory(record.category),
-    description: normalizeDetails(legacyDescription),
+    description: normalizeDescriptionFields(legacyDescription),
     schedule: normalizeSchedule(record.schedule),
     location: normalizeLocations(location),
     price: normalizePrice(record.price),
@@ -255,7 +255,7 @@ function buildTitleGroups(items: WorkoutDetailItem[]): WorkoutTitleGroup[] {
 export function buildWorkoutDetailCatalog(
   records: Record<string, WorkoutDetailRecord>,
 ): WorkoutDetailCatalog {
-  const items = Object.values(records).map(normalizeDetail);
+  const items = Object.values(records).map(normalizeWorkoutDetailItem);
   const grouped = Object.groupBy(items, (item) => item.category) as Record<string, WorkoutDetailItem[]>;
   const categories = Object.keys(grouped).sort((left, right) => left.localeCompare(right));
 

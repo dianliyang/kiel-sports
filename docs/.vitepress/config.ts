@@ -1,5 +1,6 @@
 import { defineConfig } from "vitepress";
 import { ensureWorkoutPages, repoRoot } from "./workouts/workoutPageBuilder";
+import { normalizeSnapshotDatetime } from "./theme/snapshotLastModified";
 
 const sidebar = await ensureWorkoutPages();
 const localizedLastUpdated = (text: string) => ({
@@ -50,6 +51,20 @@ export default defineConfig({
       .replace(/index\.md$/, "")
       .replace(/\.md$/, "");
     return [["link", { rel: "canonical", href: canonicalUrl }]];
+  },
+
+  transformPageData(pageData) {
+    const snapshotUpdatedAt =
+      typeof pageData.frontmatter?.snapshotUpdatedAt === "string"
+        ? pageData.frontmatter.snapshotUpdatedAt
+        : null;
+
+    if (!snapshotUpdatedAt) return;
+
+    const parsed = new Date(normalizeSnapshotDatetime(snapshotUpdatedAt));
+    if (Number.isNaN(parsed.getTime())) return;
+
+    pageData.lastUpdated = parsed.getTime();
   },
 
   locales: {

@@ -34,7 +34,7 @@ Die Seite sammelt, organisiert und übersetzt Kurs- und Aktivitätsinformationen
 
 Diese Website wird aus erhobenen Quelldaten erstellt. Sie dient der Entdeckung und dem Vergleich, garantiert jedoch nicht, dass jedes Detail vollständig, absolut korrekt oder auf dem neuesten Stand ist.
 
-Übersetzungen auf dieser Seite werden mit KI generiert. Sie können ungenau sein und sollten nicht als verbindliche Formulierungen behandelt werden.
+Übersetzungen auf dieser Seite werden nicht von Menschen geprüft und können ungenau sein.
 
 Beiträge und Korrekturen sind willkommen.
 

@@ -1,6 +1,9 @@
 import type { LocalizedLabelMap } from "./workoutI18nUtils";
-
-export type WorkoutLocale = "de" | "en" | "zh-CN" | "ja" | "ko";
+import type { WorkoutLocale } from "./workoutLocales";
+import {
+  buildWorkoutSnapshotAssetUrl,
+  readWorkoutSnapshotJson,
+} from "./workoutSnapshotUtils";
 
 type LocaleMaps = {
   titleMap: LocalizedLabelMap<WorkoutLocale>;
@@ -15,17 +18,7 @@ let workoutLocaleMaps: LocaleMaps = {
 export type ApiFetch = typeof fetch;
 
 export function buildWorkoutLocaleMapUrl(baseUrl: string, key: string): string {
-  return new URL(`/${key.replace(/^\/+/, "")}`, baseUrl).toString();
-}
-
-async function readJson<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    throw new Error(
-      `Snapshot request failed: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  return (await response.json()) as T;
+  return buildWorkoutSnapshotAssetUrl(baseUrl, key);
 }
 
 export async function loadWorkoutLocaleMaps(
@@ -70,3 +63,7 @@ export function getWorkoutTitleMap(): LocalizedLabelMap<WorkoutLocale> {
 export function getWorkoutCategoryMap(): LocalizedLabelMap<WorkoutLocale> {
   return workoutLocaleMaps.categoryMap;
 }
+
+const readJson = readWorkoutSnapshotJson;
+
+export type { WorkoutLocale } from "./workoutLocales";

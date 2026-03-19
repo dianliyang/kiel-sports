@@ -9,8 +9,13 @@ import {
   localizeWorkoutTitle,
   type SidebarLocale,
 } from "../../../src/lib/workoutSidebarI18n";
-import { getCopy, localizeWeekday } from "../../../src/lib/workoutPageLocale";
-import { getCategoryWikipediaUrl } from "../../../src/lib/workoutCategoryWikipediaMap";
+import {
+  getWorkoutPageCopy,
+  getWeekdayRangeSeparator,
+  localizeEmbeddedWeekdayTokens,
+  localizeWeekday,
+} from "../../../src/lib/workoutPageLocale";
+import { getCategoryWikipediaLinks } from "../../../src/lib/workoutCategoryWikipediaMap";
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
@@ -26,7 +31,7 @@ function formatStatus(
   value: string | undefined,
   locale: SidebarLocale,
 ): string {
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   const normalized = (value ?? "")
     .trim()
     .toLowerCase()
@@ -98,50 +103,7 @@ function localizeScheduleTime(
     ],
   };
 
-  let result = trimmed;
-  const weekdayReplacements: Record<SidebarLocale, Array<[RegExp, string]>> = {
-    de: [],
-    en: [
-      [/\bMon\b|\bMo\b/gu, "Mon"],
-      [/\bTue\b|\bDi\b/gu, "Tue"],
-      [/\bWed\b|\bMi\b/gu, "Wed"],
-      [/\bThu\b|\bDo\b/gu, "Thu"],
-      [/\bFri\b|\bFr\b/gu, "Fri"],
-      [/\bSat\b|\bSa\b/gu, "Sat"],
-      [/\bSun\b|\bSo\b/gu, "Sun"],
-    ],
-    ja: [
-      [/\bMon\b|\bMo\b/gu, "月"],
-      [/\bTue\b|\bDi\b/gu, "火"],
-      [/\bWed\b|\bMi\b/gu, "水"],
-      [/\bThu\b|\bDo\b/gu, "木"],
-      [/\bFri\b|\bFr\b/gu, "金"],
-      [/\bSat\b|\bSa\b/gu, "土"],
-      [/\bSun\b|\bSo\b/gu, "日"],
-    ],
-    ko: [
-      [/\bMon\b|\bMo\b/gu, "월"],
-      [/\bTue\b|\bDi\b/gu, "화"],
-      [/\bWed\b|\bMi\b/gu, "수"],
-      [/\bThu\b|\bDo\b/gu, "목"],
-      [/\bFri\b|\bFr\b/gu, "금"],
-      [/\bSat\b|\bSa\b/gu, "토"],
-      [/\bSun\b|\bSo\b/gu, "일"],
-    ],
-    "zh-CN": [
-      [/\bMon\b|\bMo\b/gu, "周一"],
-      [/\bTue\b|\bDi\b/gu, "周二"],
-      [/\bWed\b|\bMi\b/gu, "周三"],
-      [/\bThu\b|\bDo\b/gu, "周四"],
-      [/\bFri\b|\bFr\b/gu, "周五"],
-      [/\bSat\b|\bSa\b/gu, "周六"],
-      [/\bSun\b|\bSo\b/gu, "周日"],
-    ],
-  };
-
-  for (const [pattern, replacement] of weekdayReplacements[locale]) {
-    result = result.replace(pattern, replacement);
-  }
+  let result = localizeEmbeddedWeekdayTokens(trimmed, locale);
 
   for (const [pattern, replacement] of replacements[locale]) {
     result = result.replace(pattern, replacement);
@@ -165,7 +127,7 @@ function renderScheduleCards(
   if (item.schedule.length === 0) {
     return `<div class="workout-schedule-cards">` +
       `<div class="workout-schedule-card is-empty">` +
-      `<div class="workout-schedule-card-time">${escapeHtml(getCopy(locale).scheduleTbd)}</div>` +
+      `<div class="workout-schedule-card-time">${escapeHtml(getWorkoutPageCopy(locale).scheduleTbd)}</div>` +
       `</div></div>`;
   }
 
@@ -215,7 +177,7 @@ function formatGroupedDays(days: string[], locale: SidebarLocale): string {
   );
 
   if (isContinuous) {
-    const separator = locale === "zh-CN" ? "至" : locale === "ja" || locale === "ko" ? "〜" : "-";
+    const separator = getWeekdayRangeSeparator(locale);
     return `${localizedDays[0]}${separator}${localizedDays[localizedDays.length - 1]}`;
   }
 
@@ -336,7 +298,7 @@ function formatDuration(
   item: WorkoutDetailItem,
   locale: SidebarLocale,
 ): string {
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   return formatWorkoutDurationLocalized(
     item.startDate,
     item.endDate,
@@ -349,7 +311,7 @@ function formatSessionCount(
   item: WorkoutDetailItem,
   locale: SidebarLocale,
 ): string {
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   const count = item.plannedDates?.length ?? 0;
   if (count <= 0) return "";
   if (locale === "ja" || locale === "ko" || locale === "zh-CN") {
@@ -364,7 +326,7 @@ function formatOpeningDateTime(
 ): string {
   if (item.bookingStatus !== "scheduled" || !item.bookingOpensAt) return "";
 
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   const date = new Date(item.bookingOpensAt);
   if (Number.isNaN(date.getTime())) return item.bookingLabel ?? "";
 
@@ -418,7 +380,7 @@ function formatPriceRange(
   item: WorkoutDetailItem,
   locale: SidebarLocale,
 ): string {
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   const entries = [
     { label: copy.priceLabels.student, value: item.price?.student },
     { label: copy.priceLabels.staff, value: item.price?.staff },
@@ -497,7 +459,11 @@ function formatBulletedDescriptionBlock(
     .join("\n");
 }
 
-function renderDetailsContainers(item: WorkoutDetailItem): string[] {
+function renderDetailsContainers(
+  item: WorkoutDetailItem,
+  locale: SidebarLocale,
+): string[] {
+  const copy = getWorkoutPageCopy(locale);
   const general = formatBulletedDescriptionBlock(item.description?.general, {
     joinSoftWraps: true,
   });
@@ -507,11 +473,11 @@ function renderDetailsContainers(item: WorkoutDetailItem): string[] {
   const blocks: string[] = [];
 
   if (general) {
-    blocks.push("::: info general", general, ":::", "");
+    blocks.push(`::: info ${copy.detailLabels.general}`, general, ":::", "");
   }
 
   if (price) {
-    blocks.push("::: tip price", price, ":::", "");
+    blocks.push(`::: tip ${copy.detailLabels.price}`, price, ":::", "");
   }
 
   return blocks;
@@ -523,7 +489,7 @@ export function renderRow(
   item: WorkoutDetailItem,
   locale: SidebarLocale,
 ): string {
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   const { unmatchedTopLevelLocations } = resolveScheduleLocations(item);
   const locationParts = splitLocation({
     ...item,
@@ -599,7 +565,7 @@ export function renderGroup(
   titleGroup: WorkoutTitleGroup,
   locale: SidebarLocale,
 ): string[] {
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   const firstItem = titleGroup.items[0];
   const provider = firstItem?.provider ?? "";
   const url = firstItem?.url;
@@ -628,7 +594,7 @@ export function renderGroup(
     lines.push('<div class="workout-table">');
     lines.push(renderRow(item, locale));
     lines.push("</div>", "");
-    lines.push(...renderDetailsContainers(item));
+    lines.push(...renderDetailsContainers(item, locale));
   }
   return lines;
 }
@@ -641,9 +607,9 @@ export function renderCategoryPage(
   titleGroups: WorkoutTitleGroup[],
   snapshotUpdatedAt?: string,
 ): string {
-  const copy = getCopy(locale);
+  const copy = getWorkoutPageCopy(locale);
   const pageTitle = getCategoryLabel(locale, category);
-  const wikipediaUrl = getCategoryWikipediaUrl(locale, category);
+  const wikipediaLinks = getCategoryWikipediaLinks(locale, category);
   const variantCount = titleGroups.length;
   const variantText =
     locale === "ja" || locale === "ko" || locale === "zh-CN"
@@ -660,13 +626,19 @@ export function renderCategoryPage(
     "---",
     "",
     `<div class="workout-page-header">`,
+    `<div class="workout-page-heading">`,
     `<h1 class="workout-page-title">${escapeHtml(pageTitle)}</h1>`,
-    ...(wikipediaUrl
+    `</div>`,
+    ...(wikipediaLinks
       ? [
-        `<a class="workout-page-wikipedia" href="${escapeHtml(wikipediaUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Wikipedia: ${escapeHtml(pageTitle)}">` +
-        `<img class="workout-page-wikipedia-icon" src="/wikipedia.svg" alt="" aria-hidden="true">` +
-        `<img class="workout-page-wikipedia-wordmark" src="/wikipiedia-text.svg" alt="Wikipedia">` +
-        `</a>`,
+        `<div class="workout-page-actions">`,
+        ...wikipediaLinks.map((link) =>
+          `<a class="workout-page-wikipedia" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" aria-label="Wikipedia: ${escapeHtml(link.label)}">` +
+          `<img class="workout-page-wikipedia-icon" src="/wikipedia.svg" alt="" aria-hidden="true">` +
+          `<img class="workout-page-wikipedia-wordmark" src="/wikipiedia-text.svg" alt="Wikipedia">` +
+          `</a>`
+        ),
+        `</div>`,
       ]
       : []),
     `</div>`,

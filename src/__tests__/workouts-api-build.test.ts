@@ -1,11 +1,39 @@
 import { describe, expect, test, vi } from "vitest";
 import { getWorkoutCategoryMap, getWorkoutTitleMap, resetWorkoutLocaleMaps } from "../lib/workoutLocaleMaps";
 import {
+  getCategoryWikipediaLinks,
+  getCategoryWikipediaUrl,
+  resetWorkoutCategoryWikipediaMap,
+} from "../lib/workoutCategoryWikipediaMap";
+import {
+  buildWorkoutSnapshotAssetUrl,
+  readWorkoutSnapshotJson,
+} from "../lib/workoutSnapshotUtils";
+import {
   loadWorkoutDetailCatalogFromSnapshot,
   localizeWorkoutCatalogDescriptions,
 } from "../lib/workoutsApi";
 
 describe("loadWorkoutDetailCatalogFromSnapshot", () => {
+  test("shares snapshot asset URL construction and JSON parsing helpers", async () => {
+    expect(
+      buildWorkoutSnapshotAssetUrl(
+        "https://example.com/base/",
+        "/workouts/locales/title/file.json",
+      ),
+    ).toBe("https://example.com/workouts/locales/title/file.json");
+
+    await expect(
+      readWorkoutSnapshotJson<{ ok: true }>(
+        new Response(JSON.stringify({ ok: true })),
+      ),
+    ).resolves.toEqual({ ok: true });
+
+    await expect(
+      readWorkoutSnapshotJson(new Response("missing", { status: 404 })),
+    ).rejects.toThrow("Snapshot request failed: 404");
+  });
+
   test("loads the detail catalog through the published manifest", async () => {
     const fetchMock = vi.fn(async (input: string | URL | Request) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
@@ -18,6 +46,7 @@ describe("loadWorkoutDetailCatalogFromSnapshot", () => {
             titleLocaleKey: "workouts/locales/title/2026-03-17T10-00-00Z.json",
             categoryLocaleKey: "workouts/locales/category/2026-03-17T10-00-00Z.json",
             metadataLocaleKey: "workouts/locales/metadata/2026-03-17T10-00-00Z.json",
+            wikipediaLocaleKey: "workouts/locales/wikipedia/2026-03-17T10-00-00Z.json",
           }),
         );
       }
@@ -56,13 +85,23 @@ describe("loadWorkoutDetailCatalogFromSnapshot", () => {
         }));
       }
 
+      if (url.endsWith("/workouts/locales/wikipedia/2026-03-17T10-00-00Z.json")) {
+        return new Response(JSON.stringify({
+          Beachvolleyball: {
+            en: "https://en.wikipedia.org/wiki/Beach_volleyball",
+            ja: "https://ja.wikipedia.org/wiki/%E3%83%93%E3%83%BC%E3%83%81%E3%83%90%E3%83%AC%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%AB",
+          },
+        }));
+      }
+
       return new Response("not found", { status: 404 });
     });
 
     resetWorkoutLocaleMaps();
+    resetWorkoutCategoryWikipediaMap();
     const snapshot = await loadWorkoutDetailCatalogFromSnapshot("https://example.com", fetchMock as typeof fetch);
 
-    expect(fetchMock).toHaveBeenCalledTimes(5);
+    expect(fetchMock).toHaveBeenCalledTimes(6);
     expect(snapshot).toEqual({
       updatedAt: "2026-03-17T10:00:00Z",
       catalog: {
@@ -82,6 +121,15 @@ describe("loadWorkoutDetailCatalogFromSnapshot", () => {
     });
     expect(getWorkoutTitleMap()["Yoga Flow"]?.ja).toBe("ヨガフロー");
     expect(getWorkoutCategoryMap().Yoga?.ko).toBe("요가");
+    expect(getCategoryWikipediaUrl("ja", "Beachvolleyball")).toBe(
+      "https://ja.wikipedia.org/wiki/%E3%83%93%E3%83%BC%E3%83%81%E3%83%90%E3%83%AC%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%AB",
+    );
+    expect(getCategoryWikipediaLinks("ja", "Beachvolleyball")).toEqual([
+      {
+        label: "Wikipedia",
+        url: "https://ja.wikipedia.org/wiki/%E3%83%93%E3%83%BC%E3%83%81%E3%83%90%E3%83%AC%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%AB",
+      },
+    ]);
   });
 
   test("throws when a locale map fetch fails", async () => {

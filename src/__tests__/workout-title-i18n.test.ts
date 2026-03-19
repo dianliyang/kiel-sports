@@ -1,12 +1,11 @@
 import { beforeAll, describe, expect, test } from "vitest";
 import { localizeWorkoutTitle } from "../lib/workoutSidebarI18n";
 import { setWorkoutLocaleMaps } from "../lib/workoutLocaleMaps";
+import type { WorkoutLocale } from "../lib/workoutLocales";
 import {
   workoutCategoryFixtureMap,
   workoutTitleFixtureMap,
 } from "./fixtures/workoutLocaleFixtures";
-
-type Locale = "de" | "en" | "zh-CN" | "ja" | "ko";
 
 beforeAll(() => {
   setWorkoutLocaleMaps({
@@ -20,7 +19,7 @@ describe("Workout title localization (BDD)", () => {
     const source = "Anf. mit Grundk. und Mittelstufe";
 
     test("then the title is consistently localized across all supported locales", () => {
-      const results: Record<Locale, string> = {
+      const results: Record<WorkoutLocale, string> = {
         de: localizeWorkoutTitle(source, "de"),
         en: localizeWorkoutTitle(source, "en"),
         "zh-CN": localizeWorkoutTitle(source, "zh-CN"),

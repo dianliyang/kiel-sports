@@ -31,3 +31,5 @@ onBeforeUnmount(() => {
   window.removeEventListener("keydown", onKeydown);
 });
 </script>
+
+<template></template>

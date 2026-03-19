@@ -1,5 +1,5 @@
-import type { WorkoutLocale } from "../../lib/workoutLocaleMaps";
 import type { LocalizedLabelMap } from "../../lib/workoutI18nUtils";
+import type { WorkoutLocale } from "../../lib/workoutLocales";
 
 export const workoutTitleFixtureMap: LocalizedLabelMap<WorkoutLocale> = {
   "Anf.": {
@@ -13,6 +13,12 @@ export const workoutTitleFixtureMap: LocalizedLabelMap<WorkoutLocale> = {
     ja: "初心者 + 上級",
     ko: "초보자 + 고급",
     "zh-CN": "初学者 + 进阶",
+  },
+  "Anf. und Fortg.": {
+    en: "Beginners and Advanced",
+    ja: "初心者 と 上級",
+    ko: "초보자 및 고급",
+    "zh-CN": "初学者 及 进阶",
   },
   "Anf. mit Grundk. und Mittelstufe": {
     en: "Adv. Beginners and Intermediate",
@@ -98,6 +104,10 @@ export const workoutTitleFixtureMap: LocalizedLabelMap<WorkoutLocale> = {
     ja: "初中級",
     ko: "초중급",
     "zh-CN": "初中级",
+  },
+  "Aikido Anf.": {
+    en: "Aikido Beginners",
+    ja: "合気道 初心者",
   },
   "International Sailing Course/ unbesetzt": {
     en: "International Sailing Course / guidance vacancy",

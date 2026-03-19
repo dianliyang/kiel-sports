@@ -1,5 +1,5 @@
-import type { SidebarLocale } from "./workoutSidebarI18n";
 import type { LocalizedLabelMap } from "./workoutI18nUtils";
+import type { WorkoutLocale } from "./workoutLocales";
 import {
   getAllCategoryLabelMappings,
   titlePhraseMaps,
@@ -12,16 +12,16 @@ type TitlePhraseMapping = {
 };
 
 export type WorkoutI18nMapping = {
-  categories: LocalizedLabelMap<SidebarLocale>;
-  titlePhrases: Record<SidebarLocale, TitlePhraseMapping[]>;
+  categories: LocalizedLabelMap<WorkoutLocale>;
+  titlePhrases: Record<WorkoutLocale, TitlePhraseMapping[]>;
 };
 
-export const workoutI18nMapping: WorkoutI18nMapping = {
+export const serializedWorkoutI18nMapping: WorkoutI18nMapping = {
   categories: getAllCategoryLabelMappings(),
   titlePhrases: Object.fromEntries(
     (
       Object.entries(titlePhraseMaps) as [
-        SidebarLocale,
+        WorkoutLocale,
         { pattern: RegExp; replacement: string | ((...args: any[]) => string) }[],
       ][]
     ).map(([locale, rules]) => [
@@ -32,5 +32,7 @@ export const workoutI18nMapping: WorkoutI18nMapping = {
         replacement: String(rule.replacement),
       })),
     ]),
-  ) as Record<SidebarLocale, TitlePhraseMapping[]>,
+  ) as Record<WorkoutLocale, TitlePhraseMapping[]>,
 };
+
+export const workoutI18nMapping = serializedWorkoutI18nMapping;

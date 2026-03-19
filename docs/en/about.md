@@ -34,7 +34,7 @@ It scrapes, organizes, and translates course and activity information from provi
 
 This site is built from scraped source data. It is useful for discovery and comparison, but it does not guarantee that every detail is complete, perfectly accurate, or the latest available.
 
-Translations on this site are generated with AI. They may be imperfect, and they should not be treated as guaranteed wording.
+Translations on this site are not checked by humans and may be inaccurate.
 
 Contributions and corrections are welcome.
 

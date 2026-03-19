@@ -1,12 +1,18 @@
 import { getWorkoutCategoryMap, getWorkoutTitleMap } from "./workoutLocaleMaps";
+import type { WorkoutLocale } from "./workoutLocales";
 import {
   getLocalizedLabel,
   getLocalizedValue,
   normalizeTranslationKey,
   trimLocalizedLabel,
 } from "./workoutI18nUtils";
+import {
+  getWeekdayRangeSeparator,
+  localizeEmbeddedWeekdayTokens,
+  localizeWeekdayToken,
+} from "./workoutPageLocale";
 
-export type SidebarLocale = "de" | "en" | "zh-CN" | "ja" | "ko";
+export type SidebarLocale = WorkoutLocale;
 
 export function getAllCategoryLabelMappings(): Record<
   string,
@@ -429,23 +435,7 @@ export const titlePhraseMaps: Record<
 > = {
   de: [],
   en: [
-    {
-      pattern: /fortg\.\s*Anfänger|Fortg\.\s*Anf\./gu,
-      replacement: "Advanced Beginners",
-    },
-    { pattern: /fortg\./giu, replacement: "Advanced" },
-    { pattern: /Anfänger|Anf\./gu, replacement: "Beginners" },
-    { pattern: /\bund\b/gu, replacement: "and" },
-    { pattern: /\bauch\b/gu, replacement: "also" },
-    { pattern: /\bneue\b/gu, replacement: "new" },
     { pattern: /tägl\./gu, replacement: "Daily" },
-    { pattern: /\bMon\b|\bMo\b/gu, replacement: "Mon" },
-    { pattern: /\bTue\b|\bDi\b/gu, replacement: "Tue" },
-    { pattern: /\bWed\b|\bMi\b/gu, replacement: "Wed" },
-    { pattern: /\bThu\b|\bDo\b/gu, replacement: "Thu" },
-    { pattern: /\bFri\b|\bFr\b/gu, replacement: "Fri" },
-    { pattern: /\bSat\b|\bSa\b/gu, replacement: "Sat" },
-    { pattern: /\bSun\b|\bSo\b/gu, replacement: "Sun" },
     { pattern: /\bnur am\s+(\d+[:.]\d+)\b/giu, replacement: "only at $1" },
     { pattern: /\bbis\s+(\d+)\s+Uhr\b/giu, replacement: "until $1" },
     { pattern: /\bbis\s+(\d+[:.]\d+)\b/giu, replacement: "until $1" },
@@ -456,20 +446,7 @@ export const titlePhraseMaps: Record<
     { pattern: /\bUhr\b/giu, replacement: "" },
   ],
   ja: [
-    { pattern: /fortg\.\s*Anfänger|Fortg\.\s*Anf\./gu, replacement: "初中級" },
-    { pattern: /fortg\./giu, replacement: "上級" },
-    { pattern: /Anfänger|Anf\./gu, replacement: "初心者" },
-    { pattern: /\bund\b/gu, replacement: "と" },
-    { pattern: /\bauch\b/gu, replacement: "も" },
-    { pattern: /\bneue\b/gu, replacement: "新しい" },
     { pattern: /tägl\./gu, replacement: "毎日" },
-    { pattern: /\bMon\b|\bMo\b/gu, replacement: "月" },
-    { pattern: /\bTue\b|\bDi\b/gu, replacement: "火" },
-    { pattern: /\bWed\b|\bMi\b/gu, replacement: "水" },
-    { pattern: /\bThu\b|\bDo\b/gu, replacement: "木" },
-    { pattern: /\bFri\b|\bFr\b/gu, replacement: "金" },
-    { pattern: /\bSat\b|\bSa\b/gu, replacement: "土" },
-    { pattern: /\bSun\b|\bSo\b/gu, replacement: "日" },
     { pattern: /\bnur am\s+(\d+[:.]\d+)\b/giu, replacement: "$1のみ" },
     { pattern: /\bbis\s+(\d+)\s+Uhr\b/giu, replacement: "$1時まで" },
     { pattern: /\bbis\s+(\d+[:.]\d+)\b/giu, replacement: "$1まで" },
@@ -480,20 +457,7 @@ export const titlePhraseMaps: Record<
     { pattern: /\bUhr\b/giu, replacement: "時" },
   ],
   ko: [
-    { pattern: /fortg\.\s*Anfänger|Fortg\.\s*Anf\./gu, replacement: "초중급" },
-    { pattern: /fortg\./giu, replacement: "고급" },
-    { pattern: /Anfänger|Anf\./gu, replacement: "초보자" },
-    { pattern: /\bund\b/gu, replacement: "및" },
-    { pattern: /\bauch\b/gu, replacement: "포함" },
-    { pattern: /\bneue\b/gu, replacement: "새로운" },
     { pattern: /tägl\./gu, replacement: "매일" },
-    { pattern: /\bMon\b|\bMo\b/gu, replacement: "월" },
-    { pattern: /\bTue\b|\bDi\b/gu, replacement: "화" },
-    { pattern: /\bWed\b|\bMi\b/gu, replacement: "수" },
-    { pattern: /\bThu\b|\bDo\b/gu, replacement: "목" },
-    { pattern: /\bFri\b|\bFr\b/gu, replacement: "금" },
-    { pattern: /\bSat\b|\bSa\b/gu, replacement: "토" },
-    { pattern: /\bSun\b|\bSo\b/gu, replacement: "일" },
     { pattern: /\bnur am\s+(\d+[:.]\d+)\b/giu, replacement: "$1에만" },
     { pattern: /\bbis\s+(\d+)\s+Uhr\b/giu, replacement: "$1시까지" },
     { pattern: /\bbis\s+(\d+[:.]\d+)\b/giu, replacement: "$1까지" },
@@ -504,20 +468,7 @@ export const titlePhraseMaps: Record<
     { pattern: /\bUhr\b/giu, replacement: "시" },
   ],
   "zh-CN": [
-    { pattern: /fortg\.\s*Anfänger|Fortg\.\s*Anf\./gu, replacement: "初中级" },
-    { pattern: /fortg\./giu, replacement: "进阶" },
-    { pattern: /Anfänger|Anf\./gu, replacement: "初学者" },
-    { pattern: /\bund\b/gu, replacement: "及" },
-    { pattern: /\bauch\b/gu, replacement: "也包括" },
-    { pattern: /\bneue\b/gu, replacement: "新" },
     { pattern: /tägl\./gu, replacement: "每日" },
-    { pattern: /\bMon\b|\bMo\b/gu, replacement: "周一" },
-    { pattern: /\bTue\b|\bDi\b/gu, replacement: "周二" },
-    { pattern: /\bWed\b|\bMi\b/gu, replacement: "周三" },
-    { pattern: /\bThu\b|\bDo\b/gu, replacement: "周四" },
-    { pattern: /\bFri\b|\bFr\b/gu, replacement: "周五" },
-    { pattern: /\bSat\b|\bSa\b/gu, replacement: "周六" },
-    { pattern: /\bSun\b|\bSo\b/gu, replacement: "周日" },
     { pattern: /\bnur am\s+(\d+[:.]\d+)\b/giu, replacement: "仅限 $1" },
     { pattern: /\bbis\s+(\d+)\s+Uhr\b/giu, replacement: "截至 $1点" },
     { pattern: /\bbis\s+(\d+[:.]\d+)\b/giu, replacement: "截至 $1" },
@@ -529,114 +480,16 @@ export const titlePhraseMaps: Record<
   ],
 };
 
-const weekdayTokenMaps: Record<SidebarLocale, Record<string, string>> = {
-  de: {
-    Mon: "Mon",
-    Mo: "Mo",
-    Tue: "Tue",
-    Di: "Di",
-    Wed: "Wed",
-    Mi: "Mi",
-    Thu: "Thu",
-    Do: "Do",
-    Fri: "Fri",
-    Fr: "Fr",
-    Sat: "Sat",
-    Sa: "Sa",
-    Sun: "Sun",
-    So: "So",
-  },
-  en: {
-    Mon: "Mon",
-    Mo: "Mon",
-    Tue: "Tue",
-    Di: "Tue",
-    Wed: "Wed",
-    Mi: "Wed",
-    Thu: "Thu",
-    Do: "Thu",
-    Fri: "Fri",
-    Fr: "Fri",
-    Sat: "Sat",
-    Sa: "Sat",
-    Sun: "Sun",
-    So: "Sun",
-  },
-  ja: {
-    Mon: "月",
-    Mo: "月",
-    Tue: "火",
-    Di: "火",
-    Wed: "水",
-    Mi: "水",
-    Thu: "木",
-    Do: "木",
-    Fri: "金",
-    Fr: "金",
-    Sat: "土",
-    Sa: "土",
-    Sun: "日",
-    So: "日",
-  },
-  ko: {
-    Mon: "월",
-    Mo: "월",
-    Tue: "화",
-    Di: "화",
-    Wed: "수",
-    Mi: "수",
-    Thu: "목",
-    Do: "목",
-    Fri: "금",
-    Fr: "금",
-    Sat: "토",
-    Sa: "토",
-    Sun: "일",
-    So: "일",
-  },
-  "zh-CN": {
-    Mon: "周一",
-    Mo: "周一",
-    Tue: "周二",
-    Di: "周二",
-    Wed: "周三",
-    Mi: "周三",
-    Thu: "周四",
-    Do: "周四",
-    Fri: "周五",
-    Fr: "周五",
-    Sat: "周六",
-    Sa: "周六",
-    Sun: "周日",
-    So: "周日",
-  },
-};
+const weekdayRangeAliasPattern =
+  /\b(Mon|Mo|Tue|Di|Wed|Mi|Thu|Do|Fri|Fr|Sat|Sa|Sun|So)\b\s*(?:-|–|—|bis)\s*\b(Mon|Mo|Tue|Di|Wed|Mi|Thu|Do|Fri|Fr|Sat|Sa|Sun|So)\b/gu;
 
-const weekdayRangeSeparators: Record<SidebarLocale, string> = {
-  de: "-",
-  en: "-",
-  ja: "〜",
-  ko: "-",
-  "zh-CN": "至",
-};
-
-function localizeWeekdayRanges(
-  value: string,
-  locale: SidebarLocale,
-): string {
+function localizeWeekdayRanges(value: string, locale: SidebarLocale): string {
   if (locale === "de") return value;
 
-  const weekdayTokenMap = weekdayTokenMaps[locale];
-  const separator = weekdayRangeSeparators[locale];
-  const weekdayTokens = Object.keys(weekdayTokenMap).join("|");
-  const pattern = new RegExp(
-    `\\b(${weekdayTokens})\\b\\s*(?:-|–|—|bis)\\s*\\b(${weekdayTokens})\\b`,
-    "gu",
-  );
-
-  return value.replace(pattern, (_match, start: string, end: string) => {
-    const localizedStart = weekdayTokenMap[start] ?? start;
-    const localizedEnd = weekdayTokenMap[end] ?? end;
+  return value.replace(weekdayRangeAliasPattern, (_match, start: string, end: string) => {
+    const localizedStart = localizeWeekdayToken(start, locale) ?? start;
+    const localizedEnd = localizeWeekdayToken(end, locale) ?? end;
+    const separator = getWeekdayRangeSeparator(locale, "title");
     return `${localizedStart}${separator}${localizedEnd}`;
   });
 }
@@ -685,6 +538,7 @@ export function localizeWorkoutTitle(
   // 2. Fallback to fragment-based replacement
   let result = localizeKnownCategoryFragments(locale, normalizedValue);
   result = localizeWeekdayRanges(result, locale);
+  result = localizeEmbeddedWeekdayTokens(result, locale);
 
   // 3. Fallback to phrase maps (legacy rules)
   for (const rule of titlePhraseMaps[locale]) {

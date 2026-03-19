@@ -1,5 +1,15 @@
-import type { SidebarLocale } from "./workoutSidebarI18n";
+import type { WorkoutLocale } from "./workoutLocales";
 import { normalizeTranslationKey } from "./workoutI18nUtils";
+
+type NormalizedWeekdayToken =
+  | "daily"
+  | "Mon"
+  | "Tue"
+  | "Wed"
+  | "Thu"
+  | "Fri"
+  | "Sat"
+  | "Sun";
 export type PageLocaleCopy = {
   categoryTitle: string;
   variantSingular: string;
@@ -15,6 +25,10 @@ export type PageLocaleCopy = {
   scheduleTbd: string;
   priceTbd: string;
   statusTbd: string;
+  detailLabels: {
+    general: string;
+    price: string;
+  };
   priceLabels: {
     student: string;
     staff: string;
@@ -28,7 +42,7 @@ export type PageLocaleCopy = {
   dateLocale: string;
 };
 
-export const pageLocaleCopy: Record<SidebarLocale, PageLocaleCopy> = {
+export const workoutPageCopyByLocale: Record<WorkoutLocale, PageLocaleCopy> = {
   de: {
     categoryTitle: "Workout",
     variantSingular: "Variante",
@@ -44,6 +58,10 @@ export const pageLocaleCopy: Record<SidebarLocale, PageLocaleCopy> = {
     scheduleTbd: "Zeitplan offen",
     priceTbd: "Preis offen",
     statusTbd: "Status offen",
+    detailLabels: {
+      general: "Allgemeine Hinweise",
+      price: "Preishinweise",
+    },
     priceLabels: {
       student: "Studierende",
       staff: "Mitarbeitende",
@@ -80,6 +98,10 @@ export const pageLocaleCopy: Record<SidebarLocale, PageLocaleCopy> = {
     scheduleTbd: "Schedule TBD",
     priceTbd: "Price TBD",
     statusTbd: "Status TBD",
+    detailLabels: {
+      general: "General Note",
+      price: "Price Note",
+    },
     priceLabels: {
       student: "Student",
       staff: "Staff",
@@ -116,6 +138,10 @@ export const pageLocaleCopy: Record<SidebarLocale, PageLocaleCopy> = {
     scheduleTbd: "日程未定",
     priceTbd: "料金未定",
     statusTbd: "状態未定",
+    detailLabels: {
+      general: "一般メモ",
+      price: "料金メモ",
+    },
     priceLabels: {
       student: "学生",
       staff: "スタッフ",
@@ -152,6 +178,10 @@ export const pageLocaleCopy: Record<SidebarLocale, PageLocaleCopy> = {
     scheduleTbd: "일정 미정",
     priceTbd: "요금 미정",
     statusTbd: "상태 미정",
+    detailLabels: {
+      general: "일반 안내",
+      price: "요금 안내",
+    },
     priceLabels: {
       student: "학생",
       staff: "직원",
@@ -188,6 +218,10 @@ export const pageLocaleCopy: Record<SidebarLocale, PageLocaleCopy> = {
     scheduleTbd: "时间待定",
     priceTbd: "价格待定",
     statusTbd: "状态待定",
+    detailLabels: {
+      general: "一般说明",
+      price: "价格说明",
+    },
     priceLabels: {
       student: "学生",
       staff: "员工",
@@ -211,136 +245,161 @@ export const pageLocaleCopy: Record<SidebarLocale, PageLocaleCopy> = {
   },
 };
 
-// ── Weekday labels ────────────────────────────────────────────────────────────
+const weekdayTokenAliases: Record<string, NormalizedWeekdayToken> = {
+  tägl: "daily",
+  "tägl.": "daily",
+  Mon: "Mon",
+  Mo: "Mon",
+  Tue: "Tue",
+  Di: "Tue",
+  Wed: "Wed",
+  Mi: "Wed",
+  Thu: "Thu",
+  Do: "Thu",
+  Fri: "Fri",
+  Fr: "Fri",
+  Sat: "Sat",
+  Sa: "Sat",
+  Sun: "Sun",
+  So: "Sun",
+};
 
-export const weekdayLabels: Record<SidebarLocale, Record<string, string>> = {
+const localizedWeekdayTokens: Record<
+  WorkoutLocale,
+  Record<NormalizedWeekdayToken, string>
+> = {
   de: {
-    tägl: "tägl.",
-    "tägl.": "tägl.",
-    "Sa-So": "Sa-So",
-    "Mon-Fri": "Mo-Fr",
-    "Mo-Fr": "Mo-Fr",
+    daily: "tägl.",
     Mon: "Mo",
-    Mo: "Mo",
     Tue: "Di",
-    Di: "Di",
     Wed: "Mi",
-    Mi: "Mi",
     Thu: "Do",
-    Do: "Do",
     Fri: "Fr",
-    Fr: "Fr",
     Sat: "Sa",
-    Sa: "Sa",
     Sun: "So",
-    So: "So",
   },
   en: {
-    tägl: "Daily",
-    "tägl.": "Daily",
-    "Sa-So": "Sat-Sun",
-    "Mon-Fri": "Mon-Fri",
-    "Mo-Fr": "Mon-Fri",
+    daily: "Daily",
     Mon: "Mon",
-    Mo: "Mon",
     Tue: "Tue",
-    Di: "Tue",
     Wed: "Wed",
-    Mi: "Wed",
     Thu: "Thu",
-    Do: "Thu",
     Fri: "Fri",
-    Fr: "Fri",
     Sat: "Sat",
-    Sa: "Sat",
     Sun: "Sun",
-    So: "Sun",
   },
   ja: {
-    tägl: "毎日",
-    "tägl.": "毎日",
-    "Sa-So": "土-日",
-    "Mon-Fri": "月-金",
-    "Mo-Fr": "月-金",
+    daily: "毎日",
     Mon: "月",
-    Mo: "月",
     Tue: "火",
-    Di: "火",
     Wed: "水",
-    Mi: "水",
     Thu: "木",
-    Do: "木",
     Fri: "金",
-    Fr: "金",
     Sat: "土",
-    Sa: "土",
     Sun: "日",
-    So: "日",
   },
   ko: {
-    tägl: "매일",
-    "tägl.": "매일",
-    "Sa-So": "토-일",
-    "Mon-Fri": "월-금",
-    "Mo-Fr": "월-금",
+    daily: "매일",
     Mon: "월",
-    Mo: "월",
     Tue: "화",
-    Di: "화",
     Wed: "수",
-    Mi: "수",
     Thu: "목",
-    Do: "목",
     Fri: "금",
-    Fr: "금",
     Sat: "토",
-    Sa: "토",
     Sun: "일",
-    So: "일",
   },
   "zh-CN": {
-    tägl: "每日",
-    "tägl.": "每日",
-    "Sa-So": "周六至周日",
-    "Mon-Fri": "周一至周五",
-    "Mo-Fr": "周一至周五",
+    daily: "每日",
     Mon: "周一",
-    Mo: "周一",
     Tue: "周二",
-    Di: "周二",
     Wed: "周三",
-    Mi: "周三",
     Thu: "周四",
-    Do: "周四",
     Fri: "周五",
-    Fr: "周五",
     Sat: "周六",
-    Sa: "周六",
     Sun: "周日",
-    So: "周日",
   },
 };
-export function getCopy(locale: SidebarLocale): PageLocaleCopy {
-  return pageLocaleCopy[locale];
+
+export const weekdayLabels = localizedWeekdayTokens;
+
+const localizedWeekdayRangeSeparators: Record<
+  "page" | "title",
+  Record<WorkoutLocale, string>
+> = {
+  page: {
+    de: "-",
+    en: "-",
+    ja: "〜",
+    ko: "〜",
+    "zh-CN": "至",
+  },
+  title: {
+    de: "-",
+    en: "-",
+    ja: "〜",
+    ko: "-",
+    "zh-CN": "至",
+  },
+};
+
+const escapedWeekdayAliases = Object.keys(weekdayTokenAliases)
+  .sort((left, right) => right.length - left.length)
+  .map((token) => token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+
+const weekdayAliasPattern = new RegExp(
+  `(?<!\\w)(${escapedWeekdayAliases.join("|")})(?!\\w)`,
+  "gu",
+);
+export function getCopy(locale: WorkoutLocale): PageLocaleCopy {
+  return workoutPageCopyByLocale[locale];
 }
 
-export function localizeWeekday(value: string, locale: SidebarLocale): string {
+export function getWorkoutPageCopy(locale: WorkoutLocale): PageLocaleCopy {
+  return workoutPageCopyByLocale[locale];
+}
+
+export const pageLocaleCopy = workoutPageCopyByLocale;
+
+export function normalizeWeekdayToken(
+  value: string,
+): NormalizedWeekdayToken | undefined {
+  return weekdayTokenAliases[normalizeTranslationKey(value)];
+}
+
+export function localizeWeekdayToken(
+  value: string,
+  locale: WorkoutLocale,
+): string | undefined {
+  const token = normalizeWeekdayToken(value);
+  return token ? localizedWeekdayTokens[locale][token] : undefined;
+}
+
+export function getWeekdayRangeSeparator(
+  locale: WorkoutLocale,
+  variant: "page" | "title" = "page",
+): string {
+  return localizedWeekdayRangeSeparators[variant][locale];
+}
+
+export function localizeEmbeddedWeekdayTokens(
+  value: string,
+  locale: WorkoutLocale,
+): string {
+  return value.replace(weekdayAliasPattern, (match) =>
+    localizeWeekdayToken(match, locale) ?? match,
+  );
+}
+
+export function localizeWeekday(value: string, locale: WorkoutLocale): string {
   const trimmed = normalizeTranslationKey(value);
-  const direct = weekdayLabels[locale][trimmed];
+  const direct = localizeWeekdayToken(trimmed, locale);
   if (direct) return direct;
 
-  // Handle ranges like "Sat-Sun" or "Mo-Fr"
-  if (trimmed.includes("-")) {
-    const parts = trimmed.split("-");
+  if (/[–—-]/u.test(trimmed)) {
+    const parts = trimmed.split(/\s*[–—-]\s*/u);
     return parts
       .map((p) => localizeWeekday(p, locale))
-      .join(
-        locale === "zh-CN"
-          ? "至"
-          : locale === "ja" || locale === "ko"
-            ? "〜"
-            : "-",
-      );
+      .join(getWeekdayRangeSeparator(locale));
   }
 
   return trimmed;
