@@ -98,7 +98,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           npx wrangler@4 pages deploy docs/.vitepress/dist \
-            --project-name athena-workouts-public \
+            --project-name sport-kiel \
             --branch main \
             --commit-hash "${GITHUB_SHA}" \
             --commit-message "${GITHUB_WORKFLOW}: ${GITHUB_EVENT_NAME}"

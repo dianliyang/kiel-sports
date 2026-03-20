@@ -13,7 +13,7 @@ The docs build fetches published snapshot files from `https://athena-public-snap
 
 ## Deployment
 
-Production deploys go to Cloudflare Pages from GitHub Actions.
+Production deploys go to the Cloudflare Pages project `sport-kiel` from GitHub Actions.
 
 The workflow runs on pushes to `main`, on manual dispatch, and on a daily schedule at `04:00 UTC`, which is `06:00` during Berlin summer time (CEST).
 
