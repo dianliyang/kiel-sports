@@ -23,13 +23,26 @@ Build and start the container:
 docker compose up --build
 ```
 
-The site is then available at `http://localhost:8080`.
+With OrbStack, the site is available at `http://sport.orb.local`.
 
 You can stop it with `Ctrl+C`, or run it detached with:
 
 ```bash
 docker compose up --build -d
 ```
+
+### OrbStack Browser Access
+
+The Compose service is configured with an OrbStack custom domain:
+
+- `http://sport.orb.local`
+
+If the domain works in Safari but not in another browser such as Arc, check the macOS app permission for that browser:
+
+- `System Settings` → `Privacy & Security` → `Local Network`
+- enable access for the browser you are using
+
+Without the `Local Network` permission, Chromium-based browsers may fail to reach OrbStack container domains even when DNS resolution succeeds.
 
 Snapshot generation and publishing still stay in the separate `athena-public-snapshots` Worker project.
 
