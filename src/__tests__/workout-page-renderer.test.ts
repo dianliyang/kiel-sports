@@ -218,7 +218,7 @@ describe("workout page renderer", () => {
     expect(markdown).not.toContain("::: tip Price Note");
   });
 
-  test("converts escaped newline sequences into markdown newlines inside detail containers", () => {
+  test("converts escaped newline sequences into bullet items inside detail containers", () => {
     const markdown = renderCategoryPage("en", "Yoga", [
       {
         title: "Yoga Flow",
@@ -235,8 +235,30 @@ describe("workout page renderer", () => {
       },
     ]);
 
-    expect(markdown).toContain("Checklist\n\n- a\n- b");
+    expect(markdown).toContain("::: info General Note\n- Checklist\n- a\n- b\n:::");
     expect(markdown).not.toContain("\\n");
+  });
+
+  test("collapses repeated escaped newlines into one bullet list in detail containers", () => {
+    const markdown = renderCategoryPage("en", "Yoga", [
+      {
+        title: "Yoga Flow",
+        items: [
+          {
+            ...baseItem,
+            category: "Yoga",
+            title: "Yoga Flow",
+            description: {
+              general: "hello\\n\\n\\nworld",
+            },
+          },
+        ],
+      },
+    ]);
+
+    expect(markdown).toContain("::: info General Note\n- hello\n- world\n:::");
+    expect(markdown).not.toContain("\\n");
+    expect(markdown).not.toContain("- \n");
   });
 
   test("renders general description line breaks as visible markdown breaks only for description", () => {
@@ -421,6 +443,19 @@ describe("workout page renderer", () => {
 
     expect(html).toContain('<Badge type="info" text="状態未定" />');
     expect(html).not.toContain('text="tbd"');
+  });
+
+  test("localizes unknown booking statuses as status tbd", () => {
+    const html = renderRow(
+      {
+        ...baseItem,
+        bookingStatus: "unknown",
+      },
+      "zh-CN",
+    );
+
+    expect(html).toContain('<Badge type="info" text="状态待定" />');
+    expect(html).not.toContain('text="unknown"');
   });
 
   test("uses prerequisite-oriented labels for restricted statuses", () => {
@@ -686,6 +721,28 @@ describe("workout page renderer", () => {
     expect(html).toContain('class="workout-schedule-timeline-time">17:00 - 00:00</div>');
     expect(html).toContain('class="workout-schedule-timeline-day">Sat</div>');
     expect(html).toContain('class="workout-schedule-timeline-time">14:00 - 00:00</div>');
+  });
+
+  test("collapses a full descending week into a localized range", () => {
+    const html = renderRow(
+      {
+        ...baseItem,
+        schedule: [
+          { day: "Sun", time: "09:00-18:00", location: "SZ Schilksee" },
+          { day: "Sat", time: "09:00-18:00", location: "SZ Schilksee" },
+          { day: "Fri", time: "09:00-18:00", location: "SZ Schilksee" },
+          { day: "Thu", time: "09:00-18:00", location: "SZ Schilksee" },
+          { day: "Wed", time: "09:00-18:00", location: "SZ Schilksee" },
+          { day: "Tue", time: "09:00-18:00", location: "SZ Schilksee" },
+          { day: "Mon", time: "09:00-18:00", location: "SZ Schilksee" },
+        ],
+        location: ["SZ Schilksee, Kiel"],
+      },
+      "zh-CN",
+    );
+
+    expect(html).toContain('class="workout-schedule-timeline-day">周日至周一</div>');
+    expect(html).not.toContain("周日、周六、周五、周四、周三、周二、周一");
   });
 
   test("uses the single top-level location for all schedule entries when only one exists", () => {

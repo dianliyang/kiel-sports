@@ -42,7 +42,12 @@ function formatStatus(
     .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ");
   const normalizedUnderscore = normalized.replace(/\s+/g, "_");
-  if (!normalized || normalized === "tbd" || normalized === "status_tbd") {
+  if (
+    !normalized ||
+    normalized === "tbd" ||
+    normalized === "status_tbd" ||
+    normalized === "unknown"
+  ) {
     return copy.statusTbd;
   }
   return (
@@ -345,6 +350,13 @@ function formatGroupedDays(days: string[], locale: SidebarLocale): string {
   if (days.length === 1) return localizedDays[0];
 
   const dayNumbers = days.map((day) => WEEKDAY_ORDER[day] ?? -1);
+  const uniqueDayNumbers = new Set(dayNumbers.filter((day) => day > 0));
+
+  if (uniqueDayNumbers.size === 7) {
+    const separator = getWeekdayRangeSeparator(locale);
+    return `${localizedDays[0]}${separator}${localizedDays[localizedDays.length - 1]}`;
+  }
+
   const isContinuous = dayNumbers.every((day, index) =>
     index === 0 ? true : day === dayNumbers[index - 1] + 1,
   );
@@ -607,21 +619,29 @@ function formatBulletedDescriptionBlock(
   const normalized = normalizeMarkdownBlock(value);
   if (!normalized) return "";
 
+  let previousWasBlank = false;
   const mergedLines = normalized.split("\n").reduce<string[]>((lines, rawLine) => {
     const line = rawLine.trim();
 
     if (!line) {
-      lines.push("");
+      previousWasBlank = true;
       return lines;
     }
 
     const previous = lines.at(-1);
-    if (options.joinSoftWraps && previous && shouldJoinDescriptionLines(previous, line)) {
+    if (
+      options.joinSoftWraps &&
+      !previousWasBlank &&
+      previous &&
+      shouldJoinDescriptionLines(previous, line)
+    ) {
       lines[lines.length - 1] = `${previous} ${line}`;
+      previousWasBlank = false;
       return lines;
     }
 
     lines.push(line);
+    previousWasBlank = false;
     return lines;
   }, []);
 

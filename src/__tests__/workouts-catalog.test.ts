@@ -202,6 +202,42 @@ describe("workouts detail catalog transformations", () => {
     ]);
   });
 
+  test("normalizes full English weekday names and splits combined schedule rows", () => {
+    const catalog = buildWorkoutDetailCatalog({
+      one: {
+        ...detailRecords.yogaA,
+        slug: "english-weekday-hours",
+        schedule: [
+          {
+            day: "Monday, Tuesday",
+            time: "18:00 - 20:00",
+            location: "Studio A",
+          },
+          {
+            day: "Wednesday; Thursday/Friday",
+            time: "20:00 - 22:00",
+            location: "Studio B",
+          },
+          {
+            day: "Saturday, Sunday",
+            time: "10:00 - 12:00",
+            location: "Studio C",
+          },
+        ],
+      },
+    });
+
+    expect(catalog.groups.Yoga.items[0]?.schedule).toEqual([
+      { day: "Mon", time: "18:00 - 20:00", location: "Studio A" },
+      { day: "Tue", time: "18:00 - 20:00", location: "Studio A" },
+      { day: "Wed", time: "20:00 - 22:00", location: "Studio B" },
+      { day: "Thu", time: "20:00 - 22:00", location: "Studio B" },
+      { day: "Fri", time: "20:00 - 22:00", location: "Studio B" },
+      { day: "Sat", time: "10:00 - 12:00", location: "Studio C" },
+      { day: "Sun", time: "10:00 - 12:00", location: "Studio C" },
+    ]);
+  });
+
   test("preserves titles that previously collapsed via generic grouping rules", () => {
     const records: Record<string, WorkoutDetailRecord> = {
       z1: {
