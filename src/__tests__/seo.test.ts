@@ -146,4 +146,61 @@ describe("seo helpers", () => {
     expect(indexNodes[1]["@type"]).toBe("CollectionPage");
     expect(indexNodes[1]).not.toHaveProperty("mainEntity");
   });
+
+  test("builds new meta tags and localized breadcrumbs", () => {
+    const head = buildSeoHead({
+      title: "Tischtennis",
+      description: "",
+      relativePath: "ja/workouts/tischtennis.md",
+      frontmatter: {
+        description: "Table tennis in Kiel.",
+        seoPageKind: "workout-category",
+        seoVariantCount: 1,
+      },
+    });
+
+    expect(head).toContainEqual([
+      "meta",
+      { name: "keywords", content: expect.stringContaining("スポーツ") },
+    ]);
+    expect(head).toContainEqual([
+      "meta",
+      { name: "robots", content: "index, follow" },
+    ]);
+    expect(head).toContainEqual([
+      "meta",
+      { property: "og:image:alt", content: "Sports in Kiel Logo" },
+    ]);
+    expect(head).toContainEqual([
+      "meta",
+      { name: "twitter:image:alt", content: "Sports in Kiel Logo" },
+    ]);
+
+    const workoutNodes = buildJsonLd({
+      title: "Tischtennis",
+      description: "",
+      relativePath: "ja/workouts/tischtennis.md",
+      frontmatter: {
+        description: "Table tennis in Kiel.",
+        seoPageKind: "workout-category",
+        seoVariantCount: 1,
+      },
+    });
+
+    const breadcrumbs = workoutNodes[0].itemListElement as any[];
+    expect(breadcrumbs[1].name).toBe("ワークアウト");
+    expect(breadcrumbs[0].name).toBe("日本語");
+
+    const deNodes = buildJsonLd({
+      title: "Tischtennis",
+      description: "",
+      relativePath: "de/workouts/tischtennis.md",
+      frontmatter: {
+        seoPageKind: "workout-category",
+      },
+    });
+    const deBreadcrumbs = deNodes[0].itemListElement as any[];
+    expect(deBreadcrumbs[1].name).toBe("Workout");
+    expect(deBreadcrumbs[0].name).toBe("Deutsch");
+  });
 });
