@@ -587,8 +587,7 @@ function formatPriceRange(
 
   return entries
     .map(
-      (entry, index) =>
-        `${index > 0 ? '<div class="workout-price-separator"></div>' : ""}` +
+      (entry) =>
         `<div class="workout-price-item">` +
         `<span class="workout-price-label">${escapeHtml(entry.label)}</span>` +
         `<span class="workout-price-value">€${escapeHtml(String(entry.value))}</span>` +
@@ -816,7 +815,9 @@ export function renderCategoryPage(
     new Set(titleGroups.flatMap((group) => group.items.map((item) => item.provider)).filter(Boolean)),
   )
     .map((provider) => {
-      const notes = providerNote[provider]?.trim();
+      const notes = formatBulletedDescriptionBlock(providerNote[provider], {
+        joinSoftWraps: false,
+      });
       if (!notes) return "";
       return `::: details ${escapeHtml(provider)} Note\n${notes}\n:::\n`;
     })

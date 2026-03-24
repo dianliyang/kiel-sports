@@ -14,7 +14,7 @@ hero:
   actions:
     - theme: brand
       text: Browse English Workouts
-      link: /en
+      link: /en/workouts/
     - theme: alt
       text: About This Project
       link: /en/about

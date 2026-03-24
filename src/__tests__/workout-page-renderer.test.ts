@@ -345,13 +345,15 @@ describe("workout page renderer", () => {
       ],
       undefined,
       {
-        "Campus Active": "Bring a campus card at check-in.",
+        "Campus Active": "Bring a campus card at check-in.\nArrive 10 minutes early.",
       },
     );
 
     expect(markdown).toContain("1 variant.");
     expect(markdown).toContain("::: details Campus Active Note");
-    expect(markdown).toContain("Bring a campus card at check-in.");
+    expect(markdown).toContain(
+      "::: details Campus Active Note\n- Bring a campus card at check-in.\n- Arrive 10 minutes early.\n:::",
+    );
     expect(markdown.indexOf("::: details Campus Active Note")).toBeLessThan(
       markdown.indexOf("## Yoga – Yoga Flow"),
     );
@@ -376,6 +378,8 @@ describe("workout page renderer", () => {
     expect(html).toContain("€18");
     expect(html).toContain("€9");
     expect(html).toContain("€12");
+    expect(html).not.toContain('class="workout-price-scroll-hint"');
+    expect(html).not.toContain('class="workout-price-strip"');
   });
 
   test("does not localize category fragments inside instructor text", () => {
