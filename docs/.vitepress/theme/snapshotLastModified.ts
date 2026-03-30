@@ -30,8 +30,9 @@ export function resolveLastUpdatedConfig(
 
   const normalizedLocale = locale.toLowerCase();
   const label =
-    lastUpdatedLabels.find(([prefix]) => normalizedLocale.startsWith(prefix))?.[1]
-    ?? "Last updated";
+    lastUpdatedLabels.find(([prefix]) =>
+      normalizedLocale.startsWith(prefix),
+    )?.[1] ?? "Last updated";
 
   return {
     text: label,

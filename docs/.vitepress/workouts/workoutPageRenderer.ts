@@ -61,7 +61,12 @@ function statusBadgeType(
   value: string | undefined,
 ): "info" | "tip" | "warning" | "danger" {
   const normalized = (value ?? "").toLowerCase();
-  if (normalized.includes("cancel") || normalized.includes("closed")) {
+  if (
+    normalized.includes("cancel") ||
+    normalized.includes("closed") ||
+    normalized.includes("expired") ||
+    normalized.includes("fully")
+  ) {
     return "danger";
   }
   if (normalized.includes("wait") || normalized.includes("restricted")) {
@@ -73,10 +78,7 @@ function statusBadgeType(
   return "info";
 }
 
-function localizeScheduleTime(
-  value: string,
-  locale: SidebarLocale,
-): string {
+function localizeScheduleTime(value: string, locale: SidebarLocale): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
 
@@ -138,40 +140,60 @@ function renderScheduleCards(
   const opensAt = formatOpeningDateTime(item, locale);
   const duration = formatDuration(item, locale);
 
-  const groups = item.schedule.length === 0
-    ? []
-    : groupScheduleEntries(item, scheduleLocations, locale);
+  const groups =
+    item.schedule.length === 0
+      ? []
+      : groupScheduleEntries(item, scheduleLocations, locale);
 
   if (groups.length === 0) {
-    return renderScheduleViews(copy.scheduleTbd, [
+    return renderScheduleViews(
+      copy.scheduleTbd,
+      [
+        {
+          dayLabel: "",
+          time: "",
+          localizedTime: copy.scheduleTbd,
+          location: "",
+        },
+      ],
+      item,
       {
-        dayLabel: "",
-        time: "",
-        localizedTime: copy.scheduleTbd,
-        location: "",
+        status,
+        badgeType,
+        opensAt,
+        duration,
       },
-    ], item, {
+      locale,
+      true,
+    );
+  }
+
+  return renderScheduleViews(
+    null,
+    groups.map((group) => ({
+      ...group,
+      localizedTime: localizeScheduleTime(group.time, locale),
+    })),
+    item,
+    {
       status,
       badgeType,
       opensAt,
       duration,
-    }, locale, true);
-  }
-
-  return renderScheduleViews(null, groups.map((group) => ({
-    ...group,
-    localizedTime: localizeScheduleTime(group.time, locale),
-  })), item, {
-    status,
-    badgeType,
-    opensAt,
-    duration,
-  }, locale, false);
+    },
+    locale,
+    false,
+  );
 }
 
 function renderScheduleViews(
   emptyLabel: string | null,
-  groups: Array<{ dayLabel: string; time: string; localizedTime: string; location: string }>,
+  groups: Array<{
+    dayLabel: string;
+    time: string;
+    localizedTime: string;
+    location: string;
+  }>,
   item: WorkoutDetailItem,
   shared: {
     status: string;
@@ -184,44 +206,57 @@ function renderScheduleViews(
 ): string {
   const groupedByTime = groupScheduleEntriesByTime(groups);
 
-  const timeline = groupedByTime.map((timeGroup, index) => {
-    const uniqueDayLabels = [...new Set(
-      timeGroup.entries
-        .map((group) => group.dayLabel)
-        .filter(Boolean),
-    )];
+  const timeline = groupedByTime
+    .map((timeGroup, index) => {
+      const uniqueDayLabels = [
+        ...new Set(
+          timeGroup.entries.map((group) => group.dayLabel).filter(Boolean),
+        ),
+      ];
 
-    return (
-    `<section class="workout-schedule-timeline-item${index === 0 ? " is-first" : ""}${index === groupedByTime.length - 1 ? " is-last" : ""}">` +
-      `<div class="workout-schedule-timeline-left">` +
-      `<div class="workout-schedule-timeline-time">${escapeHtml(timeGroup.localizedTime)}</div>` +
-      (uniqueDayLabels.length > 0
-        ? uniqueDayLabels.map((dayLabel) =>
-          `<div class="workout-schedule-timeline-day">${escapeHtml(dayLabel)}</div>`
-        ).join("")
-        : `<div class="workout-schedule-timeline-day is-empty"></div>`)
-      +
-      `</div>` +
-      `<div class="workout-schedule-timeline-rail"><div class="workout-schedule-entry-node"></div></div>` +
-      `<div class="workout-schedule-timeline-details">` +
-      (index === 0
-        ? renderScheduleHeader(shared.status, shared.badgeType, shared.opensAt, locale)
-        : "") +
-      `<div class="workout-schedule-timeline-locations">` +
-      timeGroup.entries.map((group) =>
-        renderScheduleLocation(group.location, locale)
-      ).join("") +
-      `</div>` +
-      (index === groupedByTime.length - 1
-        ? renderScheduleMeta(item, {
-          location: "",
-          duration: shared.duration,
-        }, locale)
-        : "") +
-      `</div>` +
-    `</section>`
-    );
-  }).join("");
+      return (
+        `<section class="workout-schedule-timeline-item${index === 0 ? " is-first" : ""}${index === groupedByTime.length - 1 ? " is-last" : ""}">` +
+        `<div class="workout-schedule-timeline-left">` +
+        `<div class="workout-schedule-timeline-time">${escapeHtml(timeGroup.localizedTime)}</div>` +
+        (uniqueDayLabels.length > 0
+          ? uniqueDayLabels
+              .map(
+                (dayLabel) =>
+                  `<div class="workout-schedule-timeline-day">${escapeHtml(dayLabel)}</div>`,
+              )
+              .join("")
+          : `<div class="workout-schedule-timeline-day is-empty"></div>`) +
+        `</div>` +
+        `<div class="workout-schedule-timeline-rail"><div class="workout-schedule-entry-node"></div></div>` +
+        `<div class="workout-schedule-timeline-details">` +
+        (index === 0
+          ? renderScheduleHeader(
+              shared.status,
+              shared.badgeType,
+              shared.opensAt,
+              locale,
+            )
+          : "") +
+        `<div class="workout-schedule-timeline-locations">` +
+        timeGroup.entries
+          .map((group) => renderScheduleLocation(group.location, locale))
+          .join("") +
+        `</div>` +
+        (index === groupedByTime.length - 1
+          ? renderScheduleMeta(
+              item,
+              {
+                location: "",
+                duration: shared.duration,
+              },
+              locale,
+            )
+          : "") +
+        `</div>` +
+        `</section>`
+      );
+    })
+    .join("");
 
   return [
     `<div class="workout-schedule-shell${isEmpty ? " is-empty" : ""}">`,
@@ -245,7 +280,9 @@ function renderScheduleHeader(
       ? `  <div class="workout-schedule-entry-opens">${escapeHtml(copy.opensLabel)} ${escapeHtml(opensAt)}</div>`
       : "",
     `</div>`,
-  ].filter(Boolean).join("");
+  ]
+    .filter(Boolean)
+    .join("");
 }
 
 function renderScheduleMeta(
@@ -272,7 +309,9 @@ function renderScheduleMeta(
       : "",
     `<div class="workout-schedule-entry-price">${formatPriceRange(item, locale)}</div>`,
     `</div>`,
-  ].filter(Boolean).join("");
+  ]
+    .filter(Boolean)
+    .join("");
 }
 
 function renderScheduleLocation(
@@ -293,18 +332,33 @@ function renderScheduleStatus(
 }
 
 function groupScheduleEntriesByTime(
-  groups: Array<{ dayLabel: string; time: string; localizedTime: string; location: string }>,
+  groups: Array<{
+    dayLabel: string;
+    time: string;
+    localizedTime: string;
+    location: string;
+  }>,
 ): Array<{
   time: string;
   localizedTime: string;
-  entries: Array<{ dayLabel: string; time: string; localizedTime: string; location: string }>;
+  entries: Array<{
+    dayLabel: string;
+    time: string;
+    localizedTime: string;
+    location: string;
+  }>;
 }> {
   const groupedByTime = new Map<
     string,
     {
       time: string;
       localizedTime: string;
-      entries: Array<{ dayLabel: string; time: string; localizedTime: string; location: string }>;
+      entries: Array<{
+        dayLabel: string;
+        time: string;
+        localizedTime: string;
+        location: string;
+      }>;
     }
   >();
   const order: string[] = [];
@@ -366,7 +420,9 @@ function formatGroupedDays(days: string[], locale: SidebarLocale): string {
     return `${localizedDays[0]}${separator}${localizedDays[localizedDays.length - 1]}`;
   }
 
-  return localizedDays.join(locale === "zh-CN" || locale === "ja" ? "、" : ", ");
+  return localizedDays.join(
+    locale === "zh-CN" || locale === "ja" ? "、" : ", ",
+  );
 }
 
 function groupScheduleEntries(
@@ -446,7 +502,9 @@ function resolveScheduleLocations(item: WorkoutDetailItem): {
   if (item.schedule.length === 1) {
     return {
       scheduleLocations: [
-        topLevelLocations.join("; ") || cleanLocationText(item.schedule[0]?.location ?? "") || "",
+        topLevelLocations.join("; ") ||
+          cleanLocationText(item.schedule[0]?.location ?? "") ||
+          "",
       ],
       unmatchedTopLevelLocations: [],
     };
@@ -547,7 +605,8 @@ function splitLocation(item: WorkoutDetailItem): {
   const uniqueLocations = [
     ...new Set(item.schedule.map((s) => s.location?.trim()).filter(Boolean)),
   ];
-  const title = uniqueLocations.length > 0 ? uniqueLocations.join("; ") : "Location";
+  const title =
+    uniqueLocations.length > 0 ? uniqueLocations.join("; ") : "Location";
   const location = topLevelLocations.join("; ");
 
   if (!location) return { title, detail: "" };
@@ -619,30 +678,32 @@ function formatBulletedDescriptionBlock(
   if (!normalized) return "";
 
   let previousWasBlank = false;
-  const mergedLines = normalized.split("\n").reduce<string[]>((lines, rawLine) => {
-    const line = rawLine.trim();
+  const mergedLines = normalized
+    .split("\n")
+    .reduce<string[]>((lines, rawLine) => {
+      const line = rawLine.trim();
 
-    if (!line) {
-      previousWasBlank = true;
-      return lines;
-    }
+      if (!line) {
+        previousWasBlank = true;
+        return lines;
+      }
 
-    const previous = lines.at(-1);
-    if (
-      options.joinSoftWraps &&
-      !previousWasBlank &&
-      previous &&
-      shouldJoinDescriptionLines(previous, line)
-    ) {
-      lines[lines.length - 1] = `${previous} ${line}`;
+      const previous = lines.at(-1);
+      if (
+        options.joinSoftWraps &&
+        !previousWasBlank &&
+        previous &&
+        shouldJoinDescriptionLines(previous, line)
+      ) {
+        lines[lines.length - 1] = `${previous} ${line}`;
+        previousWasBlank = false;
+        return lines;
+      }
+
+      lines.push(line);
       previousWasBlank = false;
       return lines;
-    }
-
-    lines.push(line);
-    previousWasBlank = false;
-    return lines;
-  }, []);
+    }, []);
 
   return mergedLines
     .map((line) => {
@@ -728,7 +789,8 @@ export function renderGroup(
   const url = firstItem?.url;
   const localizedCategory = getCategoryLabel(locale, category);
   const localizedTitle = localizeGroupHeaderTitle(titleGroup.title, locale);
-  const hasCategoryPrefix = localizedTitle === localizedCategory ||
+  const hasCategoryPrefix =
+    localizedTitle === localizedCategory ||
     localizedTitle.startsWith(`${localizedCategory} – `) ||
     localizedTitle.startsWith(`${localizedCategory}, `) ||
     localizedTitle.startsWith(`${localizedCategory}: `);
@@ -795,15 +857,16 @@ export function renderCategoryPage(
     `</div>`,
     ...(wikipediaLinks
       ? [
-        `<div class="workout-page-actions">`,
-        ...wikipediaLinks.map((link) =>
-          `<a class="workout-page-wikipedia" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" aria-label="Wikipedia: ${escapeHtml(link.label)}">` +
-          `<img class="workout-page-wikipedia-icon" src="/wikipedia.svg" alt="" aria-hidden="true">` +
-          `<img class="workout-page-wikipedia-wordmark" src="/wikipiedia-text.svg" alt="Wikipedia">` +
-          `</a>`
-        ),
-        `</div>`,
-      ]
+          `<div class="workout-page-actions">`,
+          ...wikipediaLinks.map(
+            (link) =>
+              `<a class="workout-page-wikipedia" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" aria-label="Wikipedia: ${escapeHtml(link.label)}">` +
+              `<img class="workout-page-wikipedia-icon" src="/wikipedia.svg" alt="" aria-hidden="true">` +
+              `<img class="workout-page-wikipedia-wordmark" src="/wikipiedia-text.svg" alt="Wikipedia">` +
+              `</a>`,
+          ),
+          `</div>`,
+        ]
       : []),
     `</div>`,
     "",
@@ -812,7 +875,11 @@ export function renderCategoryPage(
   ];
 
   const renderedProviderNotes = Array.from(
-    new Set(titleGroups.flatMap((group) => group.items.map((item) => item.provider)).filter(Boolean)),
+    new Set(
+      titleGroups
+        .flatMap((group) => group.items.map((item) => item.provider))
+        .filter(Boolean),
+    ),
   )
     .map((provider) => {
       const notes = formatBulletedDescriptionBlock(providerNote[provider], {
@@ -869,8 +936,7 @@ export function renderIndexPage(
         "mehrsprachig aufbereitete Kursinformationen",
       ],
       noteTitle: "Hinweis",
-      note:
-        "Die Inhalte stammen aus externen Quellen und werden gesammelt und ubersetzt. Zeiten, Verfugbarkeit und Preise konnen sich kurzfristig andern.",
+      note: "Die Inhalte stammen aus externen Quellen und werden gesammelt und ubersetzt. Zeiten, Verfugbarkeit und Preise konnen sich kurzfristig andern.",
     },
     en: {
       title: "Workout",
@@ -889,8 +955,7 @@ export function renderIndexPage(
         "translated course information across multiple languages",
       ],
       noteTitle: "Note",
-      note:
-        "This catalog is assembled from external source pages. Schedules, availability, and pricing may change on short notice.",
+      note: "This catalog is assembled from external source pages. Schedules, availability, and pricing may change on short notice.",
     },
     ja: {
       title: "ワークアウト",
@@ -909,8 +974,7 @@ export function renderIndexPage(
         "複数言語に翻訳された講座情報",
       ],
       noteTitle: "注意",
-      note:
-        "このカタログは外部ソースをもとに構成されています。日程、空き状況、料金は短期間で変更される場合があります。",
+      note: "このカタログは外部ソースをもとに構成されています。日程、空き状況、料金は短期間で変更される場合があります。",
     },
     ko: {
       title: "운동",
@@ -929,8 +993,7 @@ export function renderIndexPage(
         "여러 언어로 정리된 강좌 정보",
       ],
       noteTitle: "안내",
-      note:
-        "이 카탈로그는 외부 소스 페이지를 바탕으로 구성됩니다. 일정, 잔여 인원, 가격은 짧은 시간 안에도 바뀔 수 있습니다.",
+      note: "이 카탈로그는 외부 소스 페이지를 바탕으로 구성됩니다. 일정, 잔여 인원, 가격은 짧은 시간 안에도 바뀔 수 있습니다.",
     },
     "zh-CN": {
       title: "运动",
@@ -949,8 +1012,7 @@ export function renderIndexPage(
         "多语言整理后的课程信息",
       ],
       noteTitle: "说明",
-      note:
-        "本目录基于外部来源页面整理而成。时间、名额和价格都可能在短时间内发生变化。",
+      note: "本目录基于外部来源页面整理而成。时间、名额和价格都可能在短时间内发生变化。",
     },
   };
   const content = contentByLocale[locale];

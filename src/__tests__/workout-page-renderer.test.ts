@@ -56,7 +56,12 @@ const baseItem: WorkoutDetailItem = {
 
 describe("workout page renderer", () => {
   test("renders a locale-aware Wikipedia link in the category page header", () => {
-    const markdown = renderCategoryPage("ja", "Beachvolleyball", [], "2026-03-17T10:00:00Z");
+    const markdown = renderCategoryPage(
+      "ja",
+      "Beachvolleyball",
+      [],
+      "2026-03-17T10:00:00Z",
+    );
 
     expect(markdown).toContain('class="workout-page-header"');
     expect(markdown).toContain('<h1 class="workout-page-title">');
@@ -65,7 +70,9 @@ describe("workout page renderer", () => {
     expect(markdown).toContain('src="/wikipedia.svg"');
     expect(markdown).toContain('class="workout-page-wikipedia-wordmark"');
     expect(markdown).toContain('src="/wikipiedia-text.svg"');
-    expect(markdown).toContain("https://ja.wikipedia.org/wiki/%E3%83%93%E3%83%BC%E3%83%81%E3%83%90%E3%83%AC%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%AB");
+    expect(markdown).toContain(
+      "https://ja.wikipedia.org/wiki/%E3%83%93%E3%83%BC%E3%83%81%E3%83%90%E3%83%AC%E3%83%BC%E3%83%9C%E3%83%BC%E3%83%AB",
+    );
     expect(markdown).toContain('alt="Wikipedia"');
     expect(markdown).toContain('snapshotUpdatedAt: "2026-03-17T10:00:00Z"');
     expect(markdown).toContain('description: "');
@@ -74,7 +81,12 @@ describe("workout page renderer", () => {
   });
 
   test("keeps snapshotUpdatedAt in frontmatter for footer last-updated rendering", () => {
-    const markdown = renderCategoryPage("de", "Tischtennis", [], "2026-03-17T10:00:00Z");
+    const markdown = renderCategoryPage(
+      "de",
+      "Tischtennis",
+      [],
+      "2026-03-17T10:00:00Z",
+    );
 
     expect(markdown).toContain('class="workout-page-heading"');
     expect(markdown).toContain('snapshotUpdatedAt: "2026-03-17T10:00:00Z"');
@@ -111,15 +123,25 @@ describe("workout page renderer", () => {
     const markdown = renderCategoryPage("en", "CAU Alumni Cup:", []);
 
     expect(markdown).toContain('title: "CAU Alumni Cup"');
-    expect(markdown).toContain('<h1 class="workout-page-title">CAU Alumni Cup</h1>');
-    expect(markdown).not.toContain('<h1 class="workout-page-title">CAU Alumni Cup:</h1>');
+    expect(markdown).toContain(
+      '<h1 class="workout-page-title">CAU Alumni Cup</h1>',
+    );
+    expect(markdown).not.toContain(
+      '<h1 class="workout-page-title">CAU Alumni Cup:</h1>',
+    );
   });
 
   test("uses the category as H1 and title mapping as H2", () => {
     const markdown = renderCategoryPage("en", "Yoga", [
       {
         title: "Yoga, Hatha Yoga (Präventionssport)",
-        items: [{ ...baseItem, category: "Yoga", title: "Yoga, Hatha Yoga (Präventionssport)" }],
+        items: [
+          {
+            ...baseItem,
+            category: "Yoga",
+            title: "Yoga, Hatha Yoga (Präventionssport)",
+          },
+        ],
       },
     ]);
 
@@ -235,7 +257,9 @@ describe("workout page renderer", () => {
       },
     ]);
 
-    expect(markdown).toContain("::: info General Note\n- Checklist\n- a\n- b\n:::");
+    expect(markdown).toContain(
+      "::: info General Note\n- Checklist\n- a\n- b\n:::",
+    );
     expect(markdown).not.toContain("\\n");
   });
 
@@ -283,7 +307,9 @@ describe("workout page renderer", () => {
     expect(markdown).toContain(
       "- No previous experience necessary\n- We don't accept cash - card payment only!\n- If you come to us regularly, please sign up for a profile to speed up the entry process.",
     );
-    expect(markdown).toContain("::: tip Price Note\n- Line one\n- Line two\n:::");
+    expect(markdown).toContain(
+      "::: tip Price Note\n- Line one\n- Line two\n:::",
+    );
   });
 
   test("keeps existing markdown list lines in general description", () => {
@@ -345,7 +371,8 @@ describe("workout page renderer", () => {
       ],
       undefined,
       {
-        "Campus Active": "Bring a campus card at check-in.\nArrive 10 minutes early.",
+        "Campus Active":
+          "Bring a campus card at check-in.\nArrive 10 minutes early.",
       },
     );
 
@@ -401,7 +428,7 @@ describe("workout page renderer", () => {
     expect(html).toContain(
       '<a class="workout-row" href="https://example.com/workouts/spin" target="_blank" rel="noopener noreferrer">',
     );
-    expect(html).not.toContain("<div class=\"workout-row\">");
+    expect(html).not.toContain('<div class="workout-row">');
   });
 
   test("matches detailed top-level locations onto schedule mini-cards", () => {
@@ -409,7 +436,7 @@ describe("workout page renderer", () => {
 
     expect(html).toContain("Studio A, Main Campus Hall");
     expect(html).not.toContain("Open booking");
-    expect(html).not.toContain('workout-detail is-location');
+    expect(html).not.toContain("workout-detail is-location");
   });
 
   test("uses the top-level detailed location directly for a single schedule", () => {
@@ -424,7 +451,7 @@ describe("workout page renderer", () => {
 
     expect(html).toContain("Main Campus Hall, Room 2");
     expect(html).not.toContain("Studio A</div>");
-    expect(html).not.toContain('workout-detail is-location');
+    expect(html).not.toContain("workout-detail is-location");
   });
 
   test("falls back to the schedule location for a single schedule when top-level location is missing", () => {
@@ -438,7 +465,7 @@ describe("workout page renderer", () => {
     );
 
     expect(html).toContain("Studio A");
-    expect(html).not.toContain('workout-detail is-location');
+    expect(html).not.toContain("workout-detail is-location");
   });
 
   test("uses the top-level location directly for a single schedule even when the schedule location is empty", () => {
@@ -451,7 +478,7 @@ describe("workout page renderer", () => {
     );
 
     expect(html).toContain("Studio A, Main Campus Hall");
-    expect(html).not.toContain('workout-detail is-location');
+    expect(html).not.toContain("workout-detail is-location");
   });
 
   test("renders booking status with the VitePress Badge component", () => {
@@ -504,7 +531,7 @@ describe("workout page renderer", () => {
     const japanese = renderRow(
       {
         ...baseItem,
-        bookingStatus: "restricted waitlist",
+        bookingStatus: "restricted_waitlist",
       },
       "ja",
     );
@@ -517,7 +544,7 @@ describe("workout page renderer", () => {
     );
   });
 
-  test("normalizes underscored restricted waitlist statuses for Chinese", () => {
+  test("normalizes underscored restricted_waitlist statuses for Chinese", () => {
     const chinese = renderRow(
       {
         ...baseItem,
@@ -526,8 +553,10 @@ describe("workout page renderer", () => {
       "zh-CN",
     );
 
-    expect(chinese).toContain('<Badge type="warning" text="候补（需满足条件）" />');
-    expect(chinese).not.toContain('text="restricted waitlist"');
+    expect(chinese).toContain(
+      '<Badge type="warning" text="候补（需满足条件）" />',
+    );
+    expect(chinese).not.toContain('text="restricted_waitlist"');
   });
 
   test("localizes see text booking statuses for Chinese", () => {
@@ -571,12 +600,24 @@ describe("workout page renderer", () => {
     expect(html).not.toContain('class="workout-schedule-view-switcher"');
     expect(html).not.toContain('data-schedule-view="timeline"');
     expect(html).toContain("workout-schedule-timeline");
-    expect(html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g)).toHaveLength(2);
-    expect(html.match(/class="workout-schedule-entry-header"/g)).toHaveLength(1);
-    expect(html.match(/class="workout-schedule-entry-detail is-duration"/g)).toHaveLength(1);
-    expect(html.match(/class="workout-schedule-entry-detail is-instructor"/g)).toHaveLength(1);
-    expect(html).toContain('class="workout-schedule-timeline-time">18:00-19:00</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">20:00-21:00</div>');
+    expect(
+      html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g),
+    ).toHaveLength(2);
+    expect(html.match(/class="workout-schedule-entry-header"/g)).toHaveLength(
+      1,
+    );
+    expect(
+      html.match(/class="workout-schedule-entry-detail is-duration"/g),
+    ).toHaveLength(1);
+    expect(
+      html.match(/class="workout-schedule-entry-detail is-instructor"/g),
+    ).toHaveLength(1);
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">18:00-19:00</div>',
+    );
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">20:00-21:00</div>',
+    );
     expect(html).toContain('class="workout-schedule-timeline-day">Mon</div>');
     expect(html).toContain('class="workout-schedule-timeline-day">Wed</div>');
     expect(html).toContain('class="workout-schedule-timeline-day">Fri</div>');
@@ -587,8 +628,10 @@ describe("workout page renderer", () => {
     expect(html).toContain("Studio A, Main Campus Hall");
     expect(html).toContain("Studio B, West Wing");
     expect(html).toContain("Studio C, North Annex");
-    expect(html.match(/<Badge type="tip" text="Available" \/>/g)).toHaveLength(1);
-    expect(html).not.toContain('workout-detail is-location');
+    expect(html.match(/<Badge type="tip" text="Available" \/>/g)).toHaveLength(
+      1,
+    );
+    expect(html).not.toContain("workout-detail is-location");
     expect(html).not.toContain('class="workout-status-block"');
   });
 
@@ -596,9 +639,7 @@ describe("workout page renderer", () => {
     const html = renderRow(
       {
         ...baseItem,
-        schedule: [
-          { day: "Mon", time: "18:00-19:00", location: "Studio A" },
-        ],
+        schedule: [{ day: "Mon", time: "18:00-19:00", location: "Studio A" }],
         location: ["Studio A, Main Campus Hall"],
         startDate: "2026-04-01",
         endDate: "2026-07-15",
@@ -624,7 +665,7 @@ describe("workout page renderer", () => {
 
     expect(html).toContain("Studio A, Main Campus Hall");
     expect(html).toContain("Overflow Building, Room 3");
-    expect(html).not.toContain('workout-detail is-location');
+    expect(html).not.toContain("workout-detail is-location");
   });
 
   test("matches similar detailed addresses to the correct mini-card", () => {
@@ -660,7 +701,7 @@ describe("workout page renderer", () => {
     expect(html).not.toContain(
       "Beach-Volleyballplatz 1, Olshausenstr. 70, Beach-Volleyballplatz 2, Olshausenstr.70, 24118 Kiel",
     );
-    expect(html).not.toContain('workout-detail is-location');
+    expect(html).not.toContain("workout-detail is-location");
   });
 
   test("localizes schedule-time phrases like 'nur am 06:05.' inside schedule timeline", () => {
@@ -673,7 +714,9 @@ describe("workout page renderer", () => {
     );
 
     expect(html).toContain('class="workout-schedule-timeline-day">周三</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">仅限 06:05.</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">仅限 06:05.</div>',
+    );
     expect(html).not.toContain("nur am 06:05.");
   });
 
@@ -681,14 +724,18 @@ describe("workout page renderer", () => {
     const html = renderRow(
       {
         ...baseItem,
-        schedule: [{ day: "tägl.", time: "Sa ab 14 Uhr", location: "Studio A" }],
+        schedule: [
+          { day: "tägl.", time: "Sa ab 14 Uhr", location: "Studio A" },
+        ],
         location: ["Studio A"],
       } as any,
       "zh-CN",
     );
 
     expect(html).toContain('class="workout-schedule-timeline-day">每日</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">周六 14点起</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">周六 14点起</div>',
+    );
     expect(html).not.toContain("Sa ab 14 Uhr");
   });
 
@@ -703,7 +750,9 @@ describe("workout page renderer", () => {
     );
 
     expect(html).toContain('class="workout-schedule-timeline-day">周六</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">周六 截至 12:00</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">周六 截至 12:00</div>',
+    );
     expect(html).not.toContain("Sa bis 12:00");
   });
 
@@ -722,9 +771,15 @@ describe("workout page renderer", () => {
       "zh-CN",
     );
 
-    expect(html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g)).toHaveLength(1);
-    expect(html).toContain('class="workout-schedule-timeline-day">周四至周日</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">09:00-18:00</div>');
+    expect(
+      html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g),
+    ).toHaveLength(1);
+    expect(html).toContain(
+      'class="workout-schedule-timeline-day">周四至周日</div>',
+    );
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">09:00-18:00</div>',
+    );
     expect(html).toContain("SZ Schilks, Soling 34, 24159 Kiel");
   });
 
@@ -742,9 +797,15 @@ describe("workout page renderer", () => {
       "zh-CN",
     );
 
-    expect(html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g)).toHaveLength(1);
-    expect(html).toContain('class="workout-schedule-timeline-day">周一、周三、周五</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">09:00-18:00</div>');
+    expect(
+      html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g),
+    ).toHaveLength(1);
+    expect(html).toContain(
+      'class="workout-schedule-timeline-day">周一、周三、周五</div>',
+    );
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">09:00-18:00</div>',
+    );
     expect(html).toContain("SZ Schilks, Soling 34, 24159 Kiel");
   });
 
@@ -753,29 +814,71 @@ describe("workout page renderer", () => {
       {
         ...baseItem,
         schedule: [
-          { day: "Mon", time: "Closed", location: "Holtenauer Straße 279, Kiel, Germany" },
-          { day: "Sun", time: "Closed", location: "Holtenauer Straße 279, Kiel, Germany" },
-          { day: "Tue", time: "17:00 - 22:00", location: "Holtenauer Straße 279, Kiel, Germany" },
-          { day: "Wed", time: "17:00 - 23:00", location: "Holtenauer Straße 279, Kiel, Germany" },
-          { day: "Thu", time: "17:00 - 23:00", location: "Holtenauer Straße 279, Kiel, Germany" },
-          { day: "Fri", time: "17:00 - 00:00", location: "Holtenauer Straße 279, Kiel, Germany" },
-          { day: "Sat", time: "14:00 - 00:00", location: "Holtenauer Straße 279, Kiel, Germany" },
+          {
+            day: "Mon",
+            time: "Closed",
+            location: "Holtenauer Straße 279, Kiel, Germany",
+          },
+          {
+            day: "Sun",
+            time: "Closed",
+            location: "Holtenauer Straße 279, Kiel, Germany",
+          },
+          {
+            day: "Tue",
+            time: "17:00 - 22:00",
+            location: "Holtenauer Straße 279, Kiel, Germany",
+          },
+          {
+            day: "Wed",
+            time: "17:00 - 23:00",
+            location: "Holtenauer Straße 279, Kiel, Germany",
+          },
+          {
+            day: "Thu",
+            time: "17:00 - 23:00",
+            location: "Holtenauer Straße 279, Kiel, Germany",
+          },
+          {
+            day: "Fri",
+            time: "17:00 - 00:00",
+            location: "Holtenauer Straße 279, Kiel, Germany",
+          },
+          {
+            day: "Sat",
+            time: "14:00 - 00:00",
+            location: "Holtenauer Straße 279, Kiel, Germany",
+          },
         ],
         location: ["Holtenauer Straße 279, Kiel, Germany"],
       },
       "en",
     );
 
-    expect(html).toContain('class="workout-schedule-timeline-day">Mon, Sun</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">Closed</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-day">Mon, Sun</div>',
+    );
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">Closed</div>',
+    );
     expect(html).toContain('class="workout-schedule-timeline-day">Tue</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">17:00 - 22:00</div>');
-    expect(html).toContain('class="workout-schedule-timeline-day">Wed-Thu</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">17:00 - 23:00</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">17:00 - 22:00</div>',
+    );
+    expect(html).toContain(
+      'class="workout-schedule-timeline-day">Wed-Thu</div>',
+    );
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">17:00 - 23:00</div>',
+    );
     expect(html).toContain('class="workout-schedule-timeline-day">Fri</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">17:00 - 00:00</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">17:00 - 00:00</div>',
+    );
     expect(html).toContain('class="workout-schedule-timeline-day">Sat</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">14:00 - 00:00</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">14:00 - 00:00</div>',
+    );
   });
 
   test("collapses a full descending week into a localized range", () => {
@@ -796,7 +899,9 @@ describe("workout page renderer", () => {
       "zh-CN",
     );
 
-    expect(html).toContain('class="workout-schedule-timeline-day">周日至周一</div>');
+    expect(html).toContain(
+      'class="workout-schedule-timeline-day">周日至周一</div>',
+    );
     expect(html).not.toContain("周日、周六、周五、周四、周三、周二、周一");
   });
 
@@ -827,15 +932,17 @@ describe("workout page renderer", () => {
           { day: "Tue", time: "16:00-18:00", location: "SH tief Bahn 2" },
           { day: "Tue", time: "16:00-18:00", location: "SH tief Bahn 3" },
         ],
-        location: [
-          "SH tief Bahn 1, ,; SH tief Bahn 2, ,; SH tief Bahn 3, ,",
-        ],
+        location: ["SH tief Bahn 1, ,; SH tief Bahn 2, ,; SH tief Bahn 3, ,"],
       },
       "zh-CN",
     );
 
-    expect(html.match(/class="workout-schedule-timeline-day">周二<\/div>/g)).toHaveLength(1);
-    expect(html).toContain('class="workout-schedule-timeline-time">16:00-18:00</div>');
+    expect(
+      html.match(/class="workout-schedule-timeline-day">周二<\/div>/g),
+    ).toHaveLength(1);
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">16:00-18:00</div>',
+    );
     expect(html).toContain("SH tief Bahn 1");
     expect(html).toContain("SH tief Bahn 2");
     expect(html).toContain("SH tief Bahn 3");
@@ -875,7 +982,9 @@ describe("workout page renderer", () => {
       "en",
     );
 
-    expect(html.match(/class="workout-schedule-timeline-day">Mon<\/div>/g)).toHaveLength(1);
+    expect(
+      html.match(/class="workout-schedule-timeline-day">Mon<\/div>/g),
+    ).toHaveLength(1);
   });
 
   test("groups multiple schedule entries under a shared time subtitle in timeline mode", () => {
@@ -896,13 +1005,27 @@ describe("workout page renderer", () => {
       "en",
     );
 
-    expect(html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g)).toHaveLength(2);
-    expect(html).toContain('class="workout-schedule-timeline-time">10:30-12:00</div>');
-    expect(html).toContain('class="workout-schedule-timeline-time">12:00-13:30</div>');
-    expect(html.match(/class="workout-schedule-timeline-day">Mon<\/div>/g)).toHaveLength(1);
-    expect(html.match(/class="workout-schedule-timeline-day">Wed<\/div>/g)).toHaveLength(1);
-    expect(html.match(/class="workout-schedule-timeline-rail"/g)).toHaveLength(2);
-    expect(html.match(/class="workout-schedule-entry-header"/g)).toHaveLength(1);
+    expect(
+      html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g),
+    ).toHaveLength(2);
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">10:30-12:00</div>',
+    );
+    expect(html).toContain(
+      'class="workout-schedule-timeline-time">12:00-13:30</div>',
+    );
+    expect(
+      html.match(/class="workout-schedule-timeline-day">Mon<\/div>/g),
+    ).toHaveLength(1);
+    expect(
+      html.match(/class="workout-schedule-timeline-day">Wed<\/div>/g),
+    ).toHaveLength(1);
+    expect(html.match(/class="workout-schedule-timeline-rail"/g)).toHaveLength(
+      2,
+    );
+    expect(html.match(/class="workout-schedule-entry-header"/g)).toHaveLength(
+      1,
+    );
   });
 
   test("groups matching times together even when the source rows are interleaved", () => {
@@ -919,9 +1042,17 @@ describe("workout page renderer", () => {
       "en",
     );
 
-    expect(html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g)).toHaveLength(2);
-    expect(html.match(/class="workout-schedule-timeline-time">18:00-20:00<\/div>/g)).toHaveLength(1);
-    expect(html.match(/class="workout-schedule-timeline-day">Mon<\/div>/g)).toHaveLength(1);
-    expect(html.match(/class="workout-schedule-timeline-day">Wed<\/div>/g)).toHaveLength(1);
+    expect(
+      html.match(/class="workout-schedule-timeline-item(?: [^"]+)?"/g),
+    ).toHaveLength(2);
+    expect(
+      html.match(/class="workout-schedule-timeline-time">18:00-20:00<\/div>/g),
+    ).toHaveLength(1);
+    expect(
+      html.match(/class="workout-schedule-timeline-day">Mon<\/div>/g),
+    ).toHaveLength(1);
+    expect(
+      html.match(/class="workout-schedule-timeline-day">Wed<\/div>/g),
+    ).toHaveLength(1);
   });
 });
