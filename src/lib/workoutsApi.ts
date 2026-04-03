@@ -90,7 +90,10 @@ export type WorkoutSnapshotCatalog = {
 };
 
 import { loadWorkoutLocaleMaps } from "./workoutLocaleMaps";
-import { setWorkoutCategoryWikipediaMap, type WorkoutCategoryWikipediaMap } from "./workoutCategoryWikipediaMap";
+import {
+  setWorkoutCategoryWikipediaMap,
+  type WorkoutCategoryWikipediaMap,
+} from "./workoutCategoryWikipediaMap";
 import type { WorkoutLocale } from "./workoutLocales";
 import {
   buildWorkoutSnapshotAssetUrl,
@@ -132,10 +135,13 @@ export function localizeWorkoutCatalogDescriptions(
       const general = generalMetadata ?? record.description?.general;
       const price = priceMetadata ?? record.description?.price;
 
-      return [id, {
-        ...record,
-        description: general || price ? { general, price } : null,
-      }];
+      return [
+        id,
+        {
+          ...record,
+          description: general || price ? { general, price } : null,
+        },
+      ];
     }),
   );
 }
@@ -150,7 +156,10 @@ export function localizeWorkoutPageNote(
 
   return Object.fromEntries(
     Object.entries(providerEntries)
-      .map(([provider, value]) => [provider, resolveDescriptionText(value.note, locale)] as const)
+      .map(
+        ([provider, value]) =>
+          [provider, resolveDescriptionText(value.note, locale)] as const,
+      )
       .filter((entry): entry is [string, string] => Boolean(entry[1])),
   );
 }
@@ -174,27 +183,32 @@ export async function loadWorkoutDetailCatalogFromSnapshot(
 
   const metadataKey = manifest.metadataLocaleKey ?? manifest.metadataKey;
 
-  const [detailCatalog, _localeMaps, rawMetadata, rawWikipediaMap] = await Promise.all([
-    readJson<Record<string, WorkoutDetailResponse>>(
-      await fetchImpl(buildSnapshotAssetUrl(baseUrl, manifest.detailKey)),
-    ),
-    loadWorkoutLocaleMaps(baseUrl, {
-      titleLocaleKey: manifest.titleLocaleKey,
-      categoryLocaleKey: manifest.categoryLocaleKey,
-    }, fetchImpl),
-    metadataKey
-      ? readOptionalJson<WorkoutMetadata>(
-        await fetchImpl(buildSnapshotAssetUrl(baseUrl, metadataKey)),
-      )
-      : Promise.resolve({}),
-    manifest.wikipediaLocaleKey
-      ? readOptionalJson<WorkoutCategoryWikipediaMap>(
-        await fetchImpl(
-          buildSnapshotAssetUrl(baseUrl, manifest.wikipediaLocaleKey),
-        ),
-      )
-      : Promise.resolve({}),
-  ]);
+  const [detailCatalog, _localeMaps, rawMetadata, rawWikipediaMap] =
+    await Promise.all([
+      readJson<Record<string, WorkoutDetailResponse>>(
+        await fetchImpl(buildSnapshotAssetUrl(baseUrl, manifest.detailKey)),
+      ),
+      loadWorkoutLocaleMaps(
+        baseUrl,
+        {
+          titleLocaleKey: manifest.titleLocaleKey,
+          categoryLocaleKey: manifest.categoryLocaleKey,
+        },
+        fetchImpl,
+      ),
+      metadataKey
+        ? readOptionalJson<WorkoutMetadata>(
+            await fetchImpl(buildSnapshotAssetUrl(baseUrl, metadataKey)),
+          )
+        : Promise.resolve({}),
+      manifest.wikipediaLocaleKey
+        ? readOptionalJson<WorkoutCategoryWikipediaMap>(
+            await fetchImpl(
+              buildSnapshotAssetUrl(baseUrl, manifest.wikipediaLocaleKey),
+            ),
+          )
+        : Promise.resolve({}),
+    ]);
 
   const metadata = normalizeWorkoutMetadata(rawMetadata);
   const wikipediaMap = rawWikipediaMap ?? {};

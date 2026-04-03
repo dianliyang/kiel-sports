@@ -23,7 +23,8 @@ const localeDescriptions: Record<SeoLocale, string> = {
   en: "Sports in Kiel: Your information aggregator for sports activities, classes, and recreation in Kiel, Germany. Find up-to-date schedules, pricing, and locations.",
   ja: "キールのスポーツ情報サイト。ドイツ・キール市で提供されているスポーツ講座、フィットネス、レクリエーション情報を集約。日程、料金、場所を簡単に検索できます。",
   ko: "독일 킬 스포츠 정보 안내: 킬에서 제공되는 다양한 스포츠 강좌, 피트니스 및 레크리에이션 활동 정보를 한곳에서 확인하세요. 일정, 요금, 장소를 제공합니다.",
-  "zh-cn": "基尔体育信息聚合平台：为您提供德国基尔市的各项运动课程、健身活动和休闲项目信息。轻松查询最新的时间表、价格以及活动地点。",
+  "zh-cn":
+    "基尔体育信息聚合平台：为您提供德国基尔市的各项运动课程、健身活动和休闲项目信息。轻松查询最新的时间表、价格以及活动地点。",
 };
 
 const workoutPageDescriptionTemplates: Record<
@@ -151,7 +152,8 @@ export function buildSeoHead(pageData: PageDataLike): HeadTag[] {
   const title = pageData.title || "Sports in Kiel";
   const locale = getLocaleFromRelativePath(pageData.relativePath);
   const keywords = locale ? localeKeywords[locale] : localeKeywords.en;
-  const imageAlt = locale === "de" ? "Sport in Kiel Logo" : "Sports in Kiel Logo";
+  const imageAlt =
+    locale === "de" ? "Sport in Kiel Logo" : "Sports in Kiel Logo";
   const ogLocale =
     locale === "zh-cn"
       ? "zh_CN"

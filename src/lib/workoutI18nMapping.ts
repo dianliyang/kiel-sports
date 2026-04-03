@@ -22,7 +22,10 @@ export const serializedWorkoutI18nMapping: WorkoutI18nMapping = {
     (
       Object.entries(titlePhraseMaps) as [
         WorkoutLocale,
-        { pattern: RegExp; replacement: string | ((...args: any[]) => string) }[],
+        {
+          pattern: RegExp;
+          replacement: string | ((...args: any[]) => string);
+        }[],
       ][]
     ).map(([locale, rules]) => [
       locale,

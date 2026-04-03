@@ -489,7 +489,7 @@ function resolveScheduleLocations(item: WorkoutDetailItem): {
   unmatchedTopLevelLocations: string[];
 } {
   const topLevelLocations = expandTopLevelLocations(
-    item.location.map((value) => value?.trim()).filter(Boolean) as string[],
+    item.location?.map((value) => value?.trim()).filter(Boolean) as string[],
   );
 
   if (topLevelLocations.length === 1) {

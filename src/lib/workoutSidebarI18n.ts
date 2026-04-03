@@ -512,12 +512,15 @@ const weekdayRangeAliasPattern =
 function localizeWeekdayRanges(value: string, locale: SidebarLocale): string {
   if (locale === "de") return value;
 
-  return value.replace(weekdayRangeAliasPattern, (_match, start: string, end: string) => {
-    const localizedStart = localizeWeekdayToken(start, locale) ?? start;
-    const localizedEnd = localizeWeekdayToken(end, locale) ?? end;
-    const separator = getWeekdayRangeSeparator(locale, "title");
-    return `${localizedStart}${separator}${localizedEnd}`;
-  });
+  return value.replace(
+    weekdayRangeAliasPattern,
+    (_match, start: string, end: string) => {
+      const localizedStart = localizeWeekdayToken(start, locale) ?? start;
+      const localizedEnd = localizeWeekdayToken(end, locale) ?? end;
+      const separator = getWeekdayRangeSeparator(locale, "title");
+      return `${localizedStart}${separator}${localizedEnd}`;
+    },
+  );
 }
 
 function normalizeLocalizedWeekdayRangeSeparators(

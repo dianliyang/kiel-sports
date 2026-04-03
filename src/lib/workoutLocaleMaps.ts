@@ -34,7 +34,9 @@ export async function loadWorkoutLocaleMaps(
       await fetchImpl(buildWorkoutLocaleMapUrl(baseUrl, input.titleLocaleKey)),
     ),
     readJson<LocalizedLabelMap<WorkoutLocale>>(
-      await fetchImpl(buildWorkoutLocaleMapUrl(baseUrl, input.categoryLocaleKey)),
+      await fetchImpl(
+        buildWorkoutLocaleMapUrl(baseUrl, input.categoryLocaleKey),
+      ),
     ),
   ]);
 

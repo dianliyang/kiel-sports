@@ -42,20 +42,23 @@ function normalizeCategory(category: string | null): string {
 }
 
 function slugifyCategory(category: string): string {
-  return category
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    || "category";
+  return (
+    category
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "category"
+  );
 }
 
 function normalizeTitleGroupKey(title: string): string {
   return title.trim();
 }
 
-function normalizeLocations(location: string[] | string | null | undefined): string[] {
+function normalizeLocations(
+  location: string[] | string | null | undefined,
+): string[] {
   const rawValues = Array.isArray(location) ? location : [location];
   return rawValues
     .filter((value): value is string => typeof value === "string")
@@ -122,11 +125,13 @@ function normalizeSchedule(
     const normalizedLocation = entry.location?.trim() ?? "";
     const rawDay = entry.day?.trim() ?? "";
     if (!rawDay) {
-      return [{
-        day: rawDay,
-        time: normalizedTime,
-        location: normalizedLocation,
-      }];
+      return [
+        {
+          day: rawDay,
+          time: normalizedTime,
+          location: normalizedLocation,
+        },
+      ];
     }
 
     const dayParts = rawDay
@@ -154,7 +159,9 @@ function normalizePrice(
   return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
-function normalizeWorkoutDetailItem(record: WorkoutDetailRecord): WorkoutDetailItem {
+function normalizeWorkoutDetailItem(
+  record: WorkoutDetailRecord,
+): WorkoutDetailItem {
   const {
     bookingUrl: _legacyBookingUrl,
     location,
@@ -216,7 +223,11 @@ function compareTitleGroups(left: string, right: string): number {
   const leftWeekday = getTitleWeekdayOrder(left);
   const rightWeekday = getTitleWeekdayOrder(right);
 
-  if (leftWeekday != null && rightWeekday != null && leftWeekday !== rightWeekday) {
+  if (
+    leftWeekday != null &&
+    rightWeekday != null &&
+    leftWeekday !== rightWeekday
+  ) {
     return leftWeekday - rightWeekday;
   }
 
@@ -263,8 +274,13 @@ export function buildWorkoutDetailCatalog(
   records: Record<string, WorkoutDetailRecord>,
 ): WorkoutDetailCatalog {
   const items = Object.values(records).map(normalizeWorkoutDetailItem);
-  const grouped = Object.groupBy(items, (item) => item.category) as Record<string, WorkoutDetailItem[]>;
-  const categories = Object.keys(grouped).sort((left, right) => left.localeCompare(right));
+  const grouped = Object.groupBy(items, (item) => item.category) as Record<
+    string,
+    WorkoutDetailItem[]
+  >;
+  const categories = Object.keys(grouped).sort((left, right) =>
+    left.localeCompare(right),
+  );
 
   const groups = Object.fromEntries(
     categories.map((category) => [

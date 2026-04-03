@@ -11,7 +11,10 @@ type FormattedWorkoutDate = {
   date: Date;
 };
 
-function inferYearFromSemester(month: number, semester?: string): number | null {
+function inferYearFromSemester(
+  month: number,
+  semester?: string,
+): number | null {
   if (!semester) return null;
 
   const yearMatch = semester.match(/(20\d{2})/);
@@ -31,7 +34,10 @@ function inferYearFromSemester(month: number, semester?: string): number | null 
   return baseYear;
 }
 
-function parseWorkoutDate(value: string, semester?: string): ParsedWorkoutDate | null {
+function parseWorkoutDate(
+  value: string,
+  semester?: string,
+): ParsedWorkoutDate | null {
   const isoMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (isoMatch) {
     return {
@@ -62,17 +68,26 @@ function parseWorkoutDate(value: string, semester?: string): ParsedWorkoutDate |
   return { day, month, year };
 }
 
-function formatParsedDate(parts: ParsedWorkoutDate, locale = "en-US"): FormattedWorkoutDate {
+function formatParsedDate(
+  parts: ParsedWorkoutDate,
+  locale = "en-US",
+): FormattedWorkoutDate {
   const date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
   return {
-    monthShort: date.toLocaleString(locale, { month: "short", timeZone: "UTC" }),
+    monthShort: date.toLocaleString(locale, {
+      month: "short",
+      timeZone: "UTC",
+    }),
     day: date.getUTCDate(),
     year: date.getUTCFullYear(),
     date,
   };
 }
 
-function formatLocalizedSingle(display: FormattedWorkoutDate, locale: string): string {
+function formatLocalizedSingle(
+  display: FormattedWorkoutDate,
+  locale: string,
+): string {
   if (locale === "en-US") {
     return `${display.monthShort} ${display.day}, ${display.year}`;
   }
