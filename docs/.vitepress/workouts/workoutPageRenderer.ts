@@ -873,9 +873,11 @@ export function renderGroup(
     ? `<p class="workout-group-provider">${escapeHtml(copy.providerLabel)}: <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(provider)}</a></p>`
     : `<p class="workout-group-provider">${escapeHtml(copy.providerLabel)}: ${escapeHtml(provider)}</p>`;
   const statusSummaryHtml = formatGroupStatusSummary(titleGroup.items, locale);
-  const unavailableNoticeHtml = titleGroup.items.some(
-    (item) => !shouldRenderTimelineStatusBadge(item.bookingStatus),
-  )
+  const unavailableNoticeHtml =
+    titleGroup.items.length > 0 &&
+    titleGroup.items.every(
+      (item) => !shouldRenderTimelineStatusBadge(item.bookingStatus),
+    )
     ? `<p class="workout-group-unavailable-note">${escapeHtml(copy.unavailableCourseNotice)}</p>`
     : "";
 

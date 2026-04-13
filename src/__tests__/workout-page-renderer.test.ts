@@ -1154,4 +1154,21 @@ describe("workout page renderer", () => {
       ),
     ).toHaveLength(1);
   });
+
+  test("does not show the unavailable fallback when the group still has visible courses", () => {
+    const lines = renderGroup(
+      "Yoga",
+      {
+        title: "Yoga Flow",
+        items: [
+          { ...baseItem, id: "1", slug: "1", bookingStatus: "expired" },
+          { ...baseItem, id: "2", slug: "2", bookingStatus: "available" },
+        ],
+      },
+      "en",
+    ).join("\n");
+
+    expect(lines).not.toContain("Currently no course available");
+    expect(lines).toContain('<Badge type="tip" text="Available" />');
+  });
 });
