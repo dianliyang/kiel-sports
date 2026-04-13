@@ -25,6 +25,7 @@ export type PageLocaleCopy = {
   scheduleTbd: string;
   priceTbd: string;
   statusTbd: string;
+  unavailableCourseNotice: string;
   detailLabels: {
     general: string;
     price: string;
@@ -58,6 +59,8 @@ export const workoutPageCopyByLocale: Record<WorkoutLocale, PageLocaleCopy> = {
     scheduleTbd: "Zeitplan offen",
     priceTbd: "Preis offen",
     statusTbd: "Status offen",
+    unavailableCourseNotice:
+      "Aktuell ist kein Kurs verfugbar, aber bitte prufe die Website fur die neuesten Daten.",
     detailLabels: {
       general: "Allgemeine Hinweise",
       price: "Preishinweise",
@@ -100,6 +103,8 @@ export const workoutPageCopyByLocale: Record<WorkoutLocale, PageLocaleCopy> = {
     scheduleTbd: "Schedule TBD",
     priceTbd: "Price TBD",
     statusTbd: "Status TBD",
+    unavailableCourseNotice:
+      "Currently no course available, but please check the website for the latest data.",
     detailLabels: {
       general: "General Note",
       price: "Price Note",
@@ -142,6 +147,8 @@ export const workoutPageCopyByLocale: Record<WorkoutLocale, PageLocaleCopy> = {
     scheduleTbd: "日程未定",
     priceTbd: "料金未定",
     statusTbd: "状態未定",
+    unavailableCourseNotice:
+      "現在利用できる講座はありませんが、最新情報は公式サイトで確認してください。",
     detailLabels: {
       general: "一般メモ",
       price: "料金メモ",
@@ -184,6 +191,8 @@ export const workoutPageCopyByLocale: Record<WorkoutLocale, PageLocaleCopy> = {
     scheduleTbd: "일정 미정",
     priceTbd: "요금 미정",
     statusTbd: "상태 미정",
+    unavailableCourseNotice:
+      "현재 이용 가능한 강좌가 없지만, 최신 정보는 웹사이트에서 확인해 주세요.",
     detailLabels: {
       general: "일반 안내",
       price: "요금 안내",
@@ -226,6 +235,8 @@ export const workoutPageCopyByLocale: Record<WorkoutLocale, PageLocaleCopy> = {
     scheduleTbd: "时间待定",
     priceTbd: "价格待定",
     statusTbd: "状态待定",
+    unavailableCourseNotice:
+      "当前暂无可报名课程，但请查看网站以获取最新信息。",
     detailLabels: {
       general: "一般说明",
       price: "价格说明",

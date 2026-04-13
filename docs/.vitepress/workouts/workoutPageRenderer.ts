@@ -36,11 +36,7 @@ function formatStatus(
   locale: SidebarLocale,
 ): string {
   const copy = getWorkoutPageCopy(locale);
-  const normalized = (value ?? "")
-    .trim()
-    .toLowerCase()
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ");
+  const normalized = normalizeBookingStatus(value);
   const normalizedUnderscore = normalized.replace(/\s+/g, "_");
   if (
     !normalized ||
@@ -57,10 +53,27 @@ function formatStatus(
   );
 }
 
+function normalizeBookingStatus(value: string | undefined): string {
+  const normalized = (value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+
+  const aliases: Record<string, string> = {
+    cancelled: "canceled",
+    waitinglist: "waitlist",
+    "waiting list": "waitlist",
+    "fully booked": "fully_booked",
+  };
+
+  return aliases[normalized] ?? normalized;
+}
+
 function statusBadgeType(
   value: string | undefined,
 ): "info" | "tip" | "warning" | "danger" {
-  const normalized = (value ?? "").toLowerCase();
+  const normalized = normalizeBookingStatus(value);
   if (
     normalized.includes("cancel") ||
     normalized.includes("closed") ||
@@ -137,6 +150,7 @@ function renderScheduleCards(
   const { scheduleLocations } = resolveScheduleLocations(item);
   const status = formatStatus(item.bookingStatus, locale);
   const badgeType = statusBadgeType(item.bookingStatus);
+  const showStatusBadge = shouldRenderTimelineStatusBadge(item.bookingStatus);
   const opensAt = formatOpeningDateTime(item, locale);
   const duration = formatDuration(item, locale);
 
@@ -160,6 +174,7 @@ function renderScheduleCards(
       {
         status,
         badgeType,
+        showStatusBadge,
         opensAt,
         duration,
       },
@@ -178,6 +193,7 @@ function renderScheduleCards(
     {
       status,
       badgeType,
+      showStatusBadge,
       opensAt,
       duration,
     },
@@ -198,6 +214,7 @@ function renderScheduleViews(
   shared: {
     status: string;
     badgeType: "info" | "tip" | "warning" | "danger";
+    showStatusBadge: boolean;
     opensAt: string;
     duration: string;
   },
@@ -233,6 +250,7 @@ function renderScheduleViews(
           ? renderScheduleHeader(
               shared.status,
               shared.badgeType,
+              shared.showStatusBadge,
               shared.opensAt,
               locale,
             )
@@ -268,14 +286,18 @@ function renderScheduleViews(
 function renderScheduleHeader(
   status: string,
   badgeType: "info" | "tip" | "warning" | "danger",
+  showStatusBadge: boolean,
   opensAt: string,
   locale: SidebarLocale,
 ): string {
   const copy = getWorkoutPageCopy(locale);
+  const statusHtml = showStatusBadge
+    ? `<div class="workout-schedule-entry-status">${renderScheduleStatus(status, badgeType)}</div>`
+    : "";
 
   return [
     `<div class="workout-schedule-entry-header">`,
-    `  <div class="workout-schedule-entry-status">${renderScheduleStatus(status, badgeType)}</div>`,
+    statusHtml,
     opensAt
       ? `  <div class="workout-schedule-entry-opens">${escapeHtml(copy.opensLabel)} ${escapeHtml(opensAt)}</div>`
       : "",
@@ -329,6 +351,54 @@ function renderScheduleStatus(
   badgeType: "info" | "tip" | "warning" | "danger",
 ): string {
   return `<Badge type="${badgeType}" text="${escapeHtml(status)}" />`;
+}
+
+function formatGroupStatusSummary(
+  items: WorkoutDetailItem[],
+  locale: SidebarLocale,
+): string {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    const normalized = normalizeBookingStatus(item.bookingStatus).replace(
+      /\s+/g,
+      "_",
+    );
+    if (!GROUP_SUMMARY_STATUSES.includes(normalized as GroupSummaryStatus)) {
+      continue;
+    }
+    counts.set(normalized, (counts.get(normalized) ?? 0) + 1);
+  }
+
+  if (counts.size === 0) return "";
+
+  const copy = getWorkoutPageCopy(locale);
+  const parts = GROUP_SUMMARY_STATUSES
+    .map((status) => {
+      const count = counts.get(status);
+      if (!count) return "";
+      const label = copy.statusLabels[status] ?? formatStatus(status, locale);
+      const badgeType = statusBadgeType(status);
+      return `<Badge type="${badgeType}" text="${escapeHtml(`${count} ${label}`)}" />`;
+    })
+    .filter(Boolean);
+
+  if (parts.length === 0) return "";
+
+  return `<div class="workout-group-status-summary">${parts.join("")}</div>`;
+}
+
+const GROUP_SUMMARY_STATUSES = [
+  "expired",
+  "waitlist",
+  "canceled",
+  "fully_booked",
+] as const;
+
+type GroupSummaryStatus = (typeof GROUP_SUMMARY_STATUSES)[number];
+
+function shouldRenderTimelineStatusBadge(value: string | undefined): boolean {
+  const normalized = normalizeBookingStatus(value).replace(/\s+/g, "_");
+  return !GROUP_SUMMARY_STATUSES.includes(normalized as GroupSummaryStatus);
 }
 
 function groupScheduleEntriesByTime(
@@ -744,7 +814,6 @@ export function renderRow(
   item: WorkoutDetailItem,
   locale: SidebarLocale,
 ): string {
-  const copy = getWorkoutPageCopy(locale);
   const { unmatchedTopLevelLocations } = resolveScheduleLocations(item);
   const locationParts = splitLocation({
     ...item,
@@ -755,8 +824,8 @@ export function renderRow(
     locale,
     locationParts.title,
   );
-  const instructorText = item.instructor?.trim() ?? "";
-  const scheduleCards = renderScheduleCards(item, locale);
+  const hideTimeline = !shouldRenderTimelineStatusBadge(item.bookingStatus);
+  const scheduleCards = hideTimeline ? "" : renderScheduleCards(item, locale);
   const wrapperTag = item.url ? "a" : "div";
   const wrapperAttributes = item.url
     ? ` class="workout-row" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer"`
@@ -765,7 +834,9 @@ export function renderRow(
   return [
     ` <${wrapperTag}${wrapperAttributes}>`.trimStart(),
     '  <div class="workout-row-main">',
-    `    <div class="workout-row-schedule">${scheduleCards}</div>`,
+    scheduleCards
+      ? `    <div class="workout-row-schedule">${scheduleCards}</div>`
+      : "",
     hasParentLocationDetails
       ? `    <div class="workout-row-note">${escapeHtml(localizedLocationTitle)}${locationParts.detail ? `: ${escapeHtml(locationParts.detail)}` : ""}</div>`
       : "",
@@ -801,13 +872,21 @@ export function renderGroup(
   const providerHtml = url
     ? `<p class="workout-group-provider">${escapeHtml(copy.providerLabel)}: <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(provider)}</a></p>`
     : `<p class="workout-group-provider">${escapeHtml(copy.providerLabel)}: ${escapeHtml(provider)}</p>`;
+  const statusSummaryHtml = formatGroupStatusSummary(titleGroup.items, locale);
+  const unavailableNoticeHtml = titleGroup.items.some(
+    (item) => !shouldRenderTimelineStatusBadge(item.bookingStatus),
+  )
+    ? `<p class="workout-group-unavailable-note">${escapeHtml(copy.unavailableCourseNotice)}</p>`
+    : "";
 
   const lines = [
     `## ${groupHeading}`,
     "",
     providerHtml,
+    statusSummaryHtml,
     "",
     `<div class="workout-table-card">`,
+    unavailableNoticeHtml,
   ];
 
   for (const item of titleGroup.items) {

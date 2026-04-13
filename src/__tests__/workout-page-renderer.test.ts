@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from "vitest";
 import {
   renderCategoryPage,
   renderRow,
+  renderGroup,
 } from "../../docs/.vitepress/workouts/workoutPageRenderer";
 import { setWorkoutCategoryWikipediaMap } from "../lib/workoutCategoryWikipediaMap";
 import type { WorkoutDetailItem } from "../lib/workoutsCatalog";
@@ -481,17 +482,35 @@ describe("workout page renderer", () => {
     expect(html).not.toContain("workout-detail is-location");
   });
 
-  test("renders booking status with the VitePress Badge component", () => {
+  test("renders booking status with the VitePress Badge component for statuses not covered by the group summary", () => {
     const html = renderRow(
       {
         ...baseItem,
-        bookingStatus: "waitlist",
+        bookingStatus: "restricted",
       },
       "en",
     );
 
-    expect(html).toContain('<Badge type="warning" text="Waitlist" />');
+    expect(html).toContain(
+      '<Badge type="warning" text="Eligibility required" />',
+    );
     expect(html).not.toContain("workout-status-dot");
+  });
+
+  test("normalizes british cancelled spelling in the localized group summary", () => {
+    const lines = renderGroup(
+      "Yoga",
+      {
+        title: "Yoga Flow",
+        items: [{ ...baseItem, id: "1", slug: "1", bookingStatus: "cancelled" }],
+      },
+      "de",
+    ).join("\n");
+
+    expect(lines).toContain(
+      '<div class="workout-group-status-summary"><Badge type="danger" text="1 Abgesagt" /></div>',
+    );
+    expect(lines).not.toContain('text="cancelled"');
   });
 
   test("localizes raw tbd booking statuses", () => {
@@ -1053,6 +1072,86 @@ describe("workout page renderer", () => {
     ).toHaveLength(1);
     expect(
       html.match(/class="workout-schedule-timeline-day">Wed<\/div>/g),
+    ).toHaveLength(1);
+  });
+
+  test("renders localized group status counts for expired waitlist cancelled and fully booked items", () => {
+    const lines = renderGroup(
+      "Yoga",
+      {
+        title: "Yoga Flow",
+        items: [
+          { ...baseItem, id: "1", slug: "1", bookingStatus: "expired" },
+          { ...baseItem, id: "2", slug: "2", bookingStatus: "waitinglist" },
+          { ...baseItem, id: "3", slug: "3", bookingStatus: "cancelled" },
+          { ...baseItem, id: "4", slug: "4", bookingStatus: "fully booked" },
+          { ...baseItem, id: "5", slug: "5", bookingStatus: "available" },
+        ],
+      },
+      "en",
+    ).join("\n");
+
+    expect(lines).toContain(
+      '<div class="workout-group-status-summary"><Badge type="danger" text="1 Expired" /><Badge type="warning" text="1 Waitlist" /><Badge type="danger" text="1 Canceled" /><Badge type="danger" text="1 Fully Booked" /></div>',
+    );
+    expect(lines).not.toContain("1 Available");
+  });
+
+  test("does not render timeline badges for statuses covered by the group summary", () => {
+    const html = renderRow(
+      {
+        ...baseItem,
+        bookingStatus: "cancelled",
+      },
+      "en",
+    );
+
+    expect(html).not.toContain("workout-schedule-shell");
+    expect(html).not.toContain("workout-schedule-timeline");
+    expect(html).not.toContain("<Badge");
+    expect(html).not.toContain("Canceled");
+  });
+
+  test("shows a fallback note when a summary-covered status hides the timeline block", () => {
+    const lines = renderGroup(
+      "Yoga",
+      {
+        title: "Yoga Flow",
+        items: [{ ...baseItem, id: "1", slug: "1", bookingStatus: "expired" }],
+      },
+      "en",
+    ).join("\n");
+
+    expect(lines).toContain('<div class="workout-table-card">');
+    expect(lines).toContain(
+      '<p class="workout-group-unavailable-note">Currently no course available, but please check the website for the latest data.</p>',
+    );
+    expect(lines.indexOf('<div class="workout-table-card">')).toBeLessThan(
+      lines.indexOf('<p class="workout-group-unavailable-note">'),
+    );
+    expect(lines).toContain(
+      "Currently no course available, but please check the website for the latest data.",
+    );
+    expect(lines).not.toContain("workout-schedule-shell");
+  });
+
+  test("shows the unavailable fallback only once per group card", () => {
+    const lines = renderGroup(
+      "Yoga",
+      {
+        title: "Yoga Flow",
+        items: [
+          { ...baseItem, id: "1", slug: "1", bookingStatus: "expired" },
+          { ...baseItem, id: "2", slug: "2", bookingStatus: "cancelled" },
+        ],
+      },
+      "en",
+    ).join("\n");
+
+    expect(
+      lines.match(
+        /Currently no course available, but please check the website for the latest data\./g,
+      ),
     ).toHaveLength(1);
   });
 });
